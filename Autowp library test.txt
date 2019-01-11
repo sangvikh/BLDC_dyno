@@ -1,0 +1,61 @@
+/* BLDC dyno
+ * Controls two VESC's via CAN bus
+ * 11" HMI
+ */
+
+//Includes
+#include <can.h>
+#include <mcp2515.h>
+
+//Constants
+const int spiPin = 10;
+const int ledPin = 2;
+
+//Initialize MCP
+MCP2515 mcp2515(spiPin);
+
+void setup()
+{
+  Serial.begin(115200);
+  pinMode(ledPin,OUTPUT);
+
+  mcp2515.reset();
+  mcp2515.setBitrate(CAN_250KBPS, MCP_8MHZ);
+  mcp2515.setNormalMode();
+
+  Serial.println("------- CAN Read ----------");
+  Serial.println("ID  DLC   DATA");
+}
+
+void loop()
+{
+  //Creates a CAN frame and sends it
+  struct can_frame frame;
+  frame.can_id = 0x000;
+  frame.can_dlc = 4;
+  frame.data[0] = 0xFF;
+  frame.data[1] = 0xFF;
+  frame.data[2] = 0xFF;
+  frame.data[3] = 0xFF;
+  mcp2515.sendMessage(&frame);
+
+  //Reads CAN messages
+  struct can_frame canIn;
+  if(mcp2515.readMessage(&canIn) == MCP2515::ERROR_OK)
+  {
+    Serial.print(canIn.can_id, HEX);
+    Serial.print("   ");
+    Serial.print(canIn.can_dlc, HEX);
+    Serial.print("   ");
+
+    for (int i = 0; i < canIn.can_dlc; i++)
+    {
+      Serial.print(canIn.data[i], HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
+  }
+  
+  //Cycle time
+  delay(1000);
+}
