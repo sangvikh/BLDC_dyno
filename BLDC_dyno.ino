@@ -7,6 +7,7 @@
 #include <SPI.h>
 #include "mcp_can.h"
 
+
 //Constants
 const int spiPin = 10;
 const int ledPin = 3;
@@ -32,7 +33,6 @@ void setup()
     Serial.println("Error Initializing MCP2515...");
   
   CAN.setMode(MCP_NORMAL);                     // Set operation mode to normal so the MCP2515 sends acks to received data.
-
   pinMode(intPin, INPUT);                            // Configuring pin for /INT input
   
   Serial.println("MCP2515 Library Receive Example...");
@@ -68,7 +68,7 @@ void loop()
   //Send CAN message
   char msg[8] = {1, 3, 3, 7};
   int len = 4;
-  CAN.sendMsgBuf(0x70, 1, len, msg);
+  CAN.sendMsgBuf(0x70, 0, len, msg);
   CAN.sendMsgBuf(0x71, 1, len, msg);
   delay(100);   // send data per 100ms
 }
