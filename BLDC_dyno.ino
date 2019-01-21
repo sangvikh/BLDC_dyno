@@ -6,24 +6,27 @@
 //Includes
 #include <VescUart.h>
 #include <FlexCAN.h>
+#include "Brake.cpp"
 
 //Initiate classes
 VescUart Brake;   //Brake VESC
 //VescUart DUT;     //Device under test VESC
 FlexCAN CAN(500000);
+CycleTime Main;  //Creates a check for a fixed cycle time
 
 //Global variables
-static CAN_message_t msg;
+static CAN_message_t inMsg;
+static CAN_message_t outMsg;
+float rpmSet = 0.0;
+float rpm = 0.0;
 
-void setup() {
-
+void setup()
+{
   //Setup debug serial
   Serial.begin(115200);
 
-  //Setup serial to brake VESC
+  //Setup serial to VESC
   Serial1.begin(115200);
-
-  //Setup serial to DUT VESC
   //Serial2.begin(115200);
 
   //Define which serial ports to use
@@ -33,16 +36,41 @@ void setup() {
   //Begin CAN communication
   CAN.begin();
 
-  delay(100); //Wait until communication is initiated
+  //PinModes
+  pinMode(13,OUTPUT);
 }
+
 
 void loop()
 {  
-  //Get data from brake
-  Brake.getVescValues();
-  Serial.print("RPM: "); Serial.println(Brake.data.rpm);
-  Serial.print("A: "); Serial.println(Brake.data.avgMotorCurrent);
-  Brake.setBrakeCurrent(1.0);
+  if(Main.checkTime()) //
+  {
+    //Get data from brake
+    Brake.getVescValues();
+    Serial.print("RPM: "); Serial.println(Brake.data.rpm);
+    Serial.print("A: "); Serial.println(Brake.data.avgMotorCurrent);
+
+    //Read incoming CAN messages
+    while (CAN.available()) 
+    {
+      CAN.read(inMsg); 
+      switch(inMsg.id)
+      {
+        case 0x21:
+          digitalWrite(13,!digitalRead(13));    //Toggle LED
+          break;
+        case 0x01:
+          rpmSet = 4000.0;
+          break;
+        case 0x02:
+          rpmSet = 0.0;
+          break;
+      }
+    }
+    //RPM ramping
+    Main.ramp(rpmSet, 0.001, rpm);
     
-  delay(500);
+    //Set motor RPM
+    Brake.setRPM(rpm);
+  }
 }
