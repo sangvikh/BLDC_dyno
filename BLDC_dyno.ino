@@ -61,15 +61,16 @@ void loop()
           digitalWrite(13,!digitalRead(13));    //Toggle LED
           break;
         case 0x01:
-          rpmSet = 15000.0;
+          rpmSet = 10000.0;
           break;
         case 0x02:
           rpmSet = 0.0;
           break;
       }
     }
+    
     //RPM ramping
-    Main.ramp(rpmSet, 0.001, rpm);
+    Main.ramp(rpmSet, 3.0, 10000.0, rpm);
     
     //Set motor RPM
     Brake.setRPM(rpm);
