@@ -4,26 +4,28 @@
 class CycleTime
 {
 public:
-  //CycleTime();
-  //~CycleTime();
+  CycleTime()
+  {}
+  ~CycleTime()
+  {}
 
-  //Sets the cycle time in seconds
-  void setCycleTime(float cycletime)
+  //Sets the cycle time in milliseconds
+  void setCycleTime(unsigned long cycletime)
   {
-    cycleTime_ = (long)cycletime*1000000;
+    cycleTime_ = cycletime;
   }
 
   float getCycleTime()
   {
-    return (float)cycleTime_/1000000;
+    return (float)cycleTime_/1000;
   }
 
   //Returns true if cycle time has passed
   bool checkTime()
   {
-    if (micros() > lastTime_)
+    if (millis() >= lastTime_)
     {
-      lastTime_ = micros();
+      lastTime_ = millis();
       return 1;
     }
     else
@@ -41,7 +43,7 @@ public:
   
 private:
   unsigned long lastTime_;
-  unsigned long cycleTime_ = 10000; //Cycle time in microseconds
+  unsigned long cycleTime_ = 10; //Cycle time in microseconds
   float cycleTimeS_ = 0.01; //Cycle time in seconds
 };
 

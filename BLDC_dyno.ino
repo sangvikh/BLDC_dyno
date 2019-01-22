@@ -11,14 +11,14 @@
 //Initiate classes
 VescUart Brake;   //Brake VESC
 //VescUart DUT;     //Device under test VESC
-FlexCAN CAN(500000);
 CycleTime Main;  //Creates a check for a fixed cycle time
 
 //Global variables
 static CAN_message_t inMsg;
-static CAN_message_t outMsg;
+static CAN_message_t msg;
 float rpmSet = 0.0;
 float rpm = 0.0;
+
 
 void setup()
 {
@@ -34,7 +34,7 @@ void setup()
   //DUT.setSerialPort(&Serial2);
 
   //Begin CAN communication
-  CAN.begin();
+  Can0.begin(500000);
 
   //PinModes
   pinMode(13,OUTPUT);
@@ -48,19 +48,20 @@ void loop()
     //Get data from brake
     Brake.getVescValues();
     Serial.print("RPM: "); Serial.println(Brake.data.rpm);
+    Serial.print("RPMset: "); Serial.println(rpm);
     Serial.print("A: "); Serial.println(Brake.data.avgMotorCurrent);
 
     //Read incoming CAN messages
-    while (CAN.available()) 
+    while (Can0.available()) 
     {
-      CAN.read(inMsg); 
+      Can0.read(inMsg); 
       switch(inMsg.id)
       {
         case 0x21:
           digitalWrite(13,!digitalRead(13));    //Toggle LED
           break;
         case 0x01:
-          rpmSet = 4000.0;
+          rpmSet = 15000.0;
           break;
         case 0x02:
           rpmSet = 0.0;
@@ -72,5 +73,19 @@ void loop()
     
     //Set motor RPM
     Brake.setRPM(rpm);
+
+    //Test CAN
+    msg.ext = 0;
+    msg.id = 0x100;
+    msg.len = 8;
+    msg.buf[0] = 0;
+    msg.buf[1] = 0;
+    msg.buf[2] = 0;
+    msg.buf[3] = 0;
+    msg.buf[4] = 1;
+    msg.buf[5] = 3;
+    msg.buf[6] = 3;
+    msg.buf[7] = 7;
+    Can0.write(msg);
   }
 }
