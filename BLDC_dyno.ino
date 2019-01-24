@@ -5,10 +5,7 @@
 
 //Includes
 #include <FlexCAN.h>
-<<<<<<< HEAD
-=======
 #include "VescUart.h"
->>>>>>> parent of 01be4bc... Revert "Added libraries used to the sketch folder"
 #include "HX711-multi.h"
 #include "Brake.cpp"
 #include "config.h"
@@ -20,6 +17,15 @@ VescUart Brake;   //Brake VESC
 VescUart DUT;     //Device under test VESC
 CycleTime Main(0.01);  //Creates a check for a fixed cycle time
 HX711MULTI scales(CHANNEL_COUNT, DOUTS, CLK);   //Initiate scales (channel count, data pins, clock pin)
+
+//Global variables
+static CAN_message_t inMsg;
+static CAN_message_t msg;
+float rpmSet = 0.0;
+float currentSet = 0.0;
+float rpm = 0.0;
+long loadCell = 0;
+
 
 void setup()
 {
