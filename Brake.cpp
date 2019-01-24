@@ -1,5 +1,6 @@
-#include "Brake.h"
 #include <Arduino.h>
+#include "Brake.h"
+#include "variables.h"
 
 class CycleTime
 {
