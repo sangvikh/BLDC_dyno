@@ -19,17 +19,19 @@ public:
     cycleTimeS_ = (float)cycleTime/1000;
   }
 
-  //Returns cycle time in seconds
+  //Returns the actual cycle time in seconds
   float getCycleTime()
   {
-    return cycleTimeS_;
+    return (float)cycleTimeActual_/1000000.0;
   }
 
   //Returns true if cycle time has passed
+  //Only run once per loop
   bool checkTime()
   {
     if (micros()-lastTime_ >= cycleTime_)
     {
+      cycleTimeActual_ = micros()-lastTime_;
       lastTime_ = micros();
       return 1;
     }
@@ -39,16 +41,17 @@ public:
     }
   }
 
-  //Ramp time per range
+  //Ramps output to input with ramp time per range
   void ramp(float in, float rampTime, float range, float& out)
   {
-    if (in > out) {out = out + cycleTimeS_/rampTime*range;}
-    if (in < out) {out = out - cycleTimeS_/rampTime*range;}
+    if (in > out) {out = out + getCycleTime()/rampTime*range;}
+    if (in < out) {out = out - getCycleTime()/rampTime*range;}
   }
   
 private:
   unsigned long lastTime_;  //Last timestamp
   unsigned long cycleTime_; //Cycle time in microseconds
+  unsigned long cycleTimeActual_; //Actual cycle time
   float cycleTimeS_; //Cycle time in seconds
 };
 

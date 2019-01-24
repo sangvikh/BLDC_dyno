@@ -115,6 +115,6 @@ void loop()
 
     //Print messages
     //Serial.println(loadCell);
-    Serial.println(scales.get_offset(0));
+    Serial.println(Main.getCycleTime());
   }
 }
