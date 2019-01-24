@@ -4,8 +4,11 @@
  */
 
 //Includes
-#include <VescUart.h>
 #include <FlexCAN.h>
+<<<<<<< HEAD
+=======
+#include "VescUart.h"
+>>>>>>> parent of 01be4bc... Revert "Added libraries used to the sketch folder"
 #include "HX711-multi.h"
 #include "Brake.cpp"
 #include "config.h"
@@ -27,7 +30,7 @@ void setup()
   Serial1.begin(serialBaud);
   Serial2.begin(serialBaud);
 
-  //Define which serial ports to use
+  //Define which serial ports to use for VESC's
   Brake.setSerialPort(&Serial1);
   DUT.setSerialPort(&Serial2);
 
@@ -72,6 +75,9 @@ void loop()
           rpmSet = 0.0;
           currentSet = 0.0;
           break;
+        case 0x99:
+          Main.setCycleTime(inMsg.buf[0]);
+          break;
       }
     }
     
@@ -88,7 +94,7 @@ void loop()
       Brake.setCurrent(currentSet);
     }
 
-    //Test CAN
+    //Test CAN, also useful for verifying cycle time in PCAN
     msg.ext = 0;
     msg.id = 0x100;
     msg.len = 4;
@@ -102,6 +108,7 @@ void loop()
     
 
     //Print messages
-    Serial.println(loadCell);
+    //Serial.println(loadCell);
+    Serial.println(scales.get_offset(0));
   }
 }

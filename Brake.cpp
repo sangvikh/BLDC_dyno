@@ -12,11 +12,11 @@ public:
   };
   ~CycleTime(){};
 
-  //Sets the cycle time in seconds
-  void setCycleTime(float cycleTime)
+  //Sets the cycle time in milliseconds
+  void setCycleTime(unsigned long cycleTime)
   {
-    cycleTime_ = (unsigned long)cycleTime*1000000;
-    cycleTimeS_ = cycleTime;
+    cycleTime_ = cycleTime*1000;
+    cycleTimeS_ = (float)cycleTime/1000;
   }
 
   //Returns cycle time in seconds
@@ -67,6 +67,7 @@ private:
   float current;
 };
 
+/*
 class LoadcellCalibration
 {
 public:
@@ -81,7 +82,8 @@ public:
   {
     for (int i = 0; i < numberOfLoadCells_; i++)
     {
-//      scales.tare(100, 100);
+      scales.tare(100, 1000);
+      scales.readRaw(&tareValue_);
     }
   }
 
@@ -99,5 +101,4 @@ private:
   unsigned char numberOfLoadCells_;
   long tareValue_[4];
 };
-
-//Help functions
+*/
