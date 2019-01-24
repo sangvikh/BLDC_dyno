@@ -7,34 +7,47 @@
 #include <VescUart.h>
 #include <FlexCAN.h>
 #include "Brake.cpp"
+#include "HX711-multi.h"
+#include "config.h"
+#include "floatMap.cpp"
+
+// Pins to the load cell amp
+#define CLK 5      // clock pin to the load cell amp
+byte douts[1] = {6};
 
 //Initiate classes
 VescUart Brake;   //Brake VESC
 //VescUart DUT;     //Device under test VESC
-CycleTime Main;  //Creates a check for a fixed cycle time
+CycleTime Main(0.01);  //Creates a check for a fixed cycle time
+HX711MULTI scales(1, douts, 5);   //Initiate scales (channel count, data pins, clock pin)
 
 //Global variables
 static CAN_message_t inMsg;
 static CAN_message_t msg;
 float rpmSet = 0.0;
+float currentSet = 0.0;
 float rpm = 0.0;
+long loadCell = 0;
 
 
 void setup()
 {
   //Setup debug serial
-  Serial.begin(115200);
+  Serial.begin(serialBaud);
 
   //Setup serial to VESC
-  Serial1.begin(115200);
-  //Serial2.begin(115200);
+  Serial1.begin(serialBaud);
+  //Serial2.begin(serialBaud);
 
   //Define which serial ports to use
   Brake.setSerialPort(&Serial1);
   //DUT.setSerialPort(&Serial2);
 
   //Begin CAN communication
-  Can0.begin(500000);
+  Can0.begin(CANbaud);
+
+  //Tare load cells
+  scales.tare(100, 1000);
 
   //PinModes
   pinMode(13,OUTPUT);
@@ -47,9 +60,12 @@ void loop()
   {
     //Get data from brake
     Brake.getVescValues();
-    Serial.print("RPM: "); Serial.println(Brake.data.rpm);
-    Serial.print("RPMset: "); Serial.println(rpm);
-    Serial.print("A: "); Serial.println(Brake.data.avgMotorCurrent);
+
+    //Read load cells
+    if (scales.is_ready())
+    {
+      scales.read(&loadCell);
+    }
 
     //Read incoming CAN messages
     while (Can0.available()) 
@@ -61,32 +77,43 @@ void loop()
           digitalWrite(13,!digitalRead(13));    //Toggle LED
           break;
         case 0x01:
-          rpmSet = 10000.0;
+          rpmSet = (float)(inMsg.buf[0]*100);
+          currentSet = 3.0;
           break;
         case 0x02:
           rpmSet = 0.0;
+          currentSet = 0.0;
           break;
       }
     }
     
     //RPM ramping
-    Main.ramp(rpmSet, 3.0, 10000.0, rpm);
+    Main.ramp(rpmSet, 10.0, 10000.0, rpm);
     
-    //Set motor RPM
-    Brake.setRPM(rpm);
+    //Set motor RPM and current
+    if (Brake.data.rpm >= rpmSet*0.95 && Brake.data.avgMotorCurrent < currentSet)
+    {
+      Brake.setRPM(rpmSet);
+    }
+    else
+    {
+      Brake.setCurrent(currentSet);
+    }
 
     //Test CAN
     msg.ext = 0;
     msg.id = 0x100;
-    msg.len = 8;
-    msg.buf[0] = 0;
-    msg.buf[1] = 0;
-    msg.buf[2] = 0;
-    msg.buf[3] = 0;
-    msg.buf[4] = 1;
-    msg.buf[5] = 3;
-    msg.buf[6] = 3;
-    msg.buf[7] = 7;
+    msg.len = 4;
+    msg.buf[0] = 1;
+    msg.buf[1] = 3;
+    msg.buf[2] = 3;
+    msg.buf[3] = 7;
     Can0.write(msg);
+
+    //Set outputs
+    
+
+    //Print messages
+    Serial.println(loadCell);
   }
 }
