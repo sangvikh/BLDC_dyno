@@ -23,16 +23,10 @@ public:
   float getTorque(unsigned char lc1, unsigned char lc2);
 
   //Returns scaled value from one of the load cells
-  float getScaledValue(unsigned char i)
-  {
-    return scaledValue_[i];
-  }
+  float getScaledValue(unsigned char i) {return scaledValue_[i];}
 
   //Returns raw value from one of the load cells
-  float getRawValue(unsigned char i)
-  {
-    return rawValue_[i];
-  }
+  float getRawValue(unsigned char i) {return rawValue_[i];}
   
 private:
   unsigned char numberOfLoadCells_;
