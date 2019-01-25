@@ -116,10 +116,8 @@ void loop()
     Can0.write(msg);
 
     //Set outputs
-    
 
     //Print messages
-    //Serial.println(loadCell);
     Serial.println(LoadCell.getScaledValue(0));
   }
 }

@@ -36,9 +36,9 @@ public:
   
 private:
   unsigned char numberOfLoadCells_;
-  long zeroValue_[4] = {};
-  long spanValue_[4] = {};
-  long tareValue_[4] = {};
+  long zeroValue_[4] = {98000};
+  long spanValue_[4] = {500000};
+  long tareValue_[4] = {0};
   long rawValue_[4] = {};
   float scaledValue_[4] = {};
   float radius_ = 0.055;  //Distance between load cells
