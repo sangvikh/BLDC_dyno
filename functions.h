@@ -14,5 +14,15 @@ float floatMap(float x, float x0, float x1, float y0, float y1)
 {return y0+((float)x-x0)*(y1-y0)/(x1-x0);}
 
 
-//Next function
-//
+//Ramps output to input with ramp time per range
+void ramp(float in, float rampTime, float range, float& out, float cycleTime)
+{
+  if (in > out) {out = out + cycleTime/rampTime*range;}
+  if (in < out) {out = out - cycleTime/rampTime*range;}
+}
+
+//Soft cutoff function for current/RPM
+void cutoff(float actualRPM, float maxRPM, float maxCurrent)
+{
+  //do something
+}

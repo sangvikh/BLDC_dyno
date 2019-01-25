@@ -6,8 +6,8 @@
 //Includes
 #include <FlexCAN.h>
 #include "VescUart.h"
-#include "HX711-multi.h"
-#include "Brake.cpp"
+#include "Loadcell.h"
+#include "Brake.h"
 #include "config.h"
 #include "functions.h"
 #include "variables.h"
@@ -15,8 +15,8 @@
 //Initiate classes
 VescUart Brake;   //Brake VESC
 VescUart DUT;     //Device under test VESC
-CycleTime Main(0.01);  //Creates a check for a fixed cycle time
-HX711MULTI scales(CHANNEL_COUNT, DOUTS, CLK);   //Initiate scales (channel count, data pins, clock pin)
+CycleTime Main(10);  //Creates a check for a fixed cycle time
+LoadCell Loadcell;   //Initiate scales
 
 //Global variables
 static CAN_message_t inMsg;
@@ -43,9 +43,6 @@ void setup()
   //Begin CAN communication
   Can0.begin(CANbaud);
 
-  //Tare load cells
-  scales.tare(100, 1000);
-
   //PinModes
   pinMode(13,OUTPUT);
 }
@@ -55,14 +52,11 @@ void loop()
 {  
   if(Main.checkTime()) //
   {
+    //Gets the cycle time
+    float cycleTime = Main.getCycleTime();
+    
     //Get data from brake
     Brake.getVescValues();
-
-    //Read load cells
-    if (scales.is_ready())
-    {
-      scales.read(&loadCell);
-    }
 
     //Read incoming CAN messages
     while (Can0.available()) 
@@ -88,12 +82,12 @@ void loop()
     }
     
     //RPM ramping
-    Main.ramp(rpmSet, 10.0, 10000.0, rpm);
+    ramp(rpmSet, 10.0, 10000.0, rpm, cycleTime);
     
     //Set motor RPM and current
     if (Brake.data.rpm >= rpmSet*0.95 && Brake.data.avgMotorCurrent < currentSet)
     {
-      Brake.setRPM(rpmSet);
+      Brake.setRPM(rpm);
     }
     else
     {
