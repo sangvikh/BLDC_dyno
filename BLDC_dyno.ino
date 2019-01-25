@@ -16,7 +16,7 @@
 VescUart Brake;   //Brake VESC
 VescUart DUT;     //Device under test VESC
 CycleTime Main(10);  //Creates a check for a fixed cycle time
-LoadCell Loadcell;   //Initiate scales
+LoadCell LoadCell;   //Initiate scales
 
 //Global variables
 static CAN_message_t inMsg;
@@ -57,6 +57,9 @@ void loop()
     //Get data from brake
     Brake.getVescValues();
 
+    //Update load cells
+    LoadCell.refresh();
+
     //Read incoming CAN messages
     while (Can0.available()) 
     {
@@ -76,6 +79,15 @@ void loop()
           break;
         case 0x99:
           Main.setCycleTime(inMsg.buf[0]);
+          break;
+        case 0x10:
+          LoadCell.zero(0);
+          break;
+        case 0x11:
+          LoadCell.span(0);
+          break;
+        case 0x12:
+          LoadCell.tare();
           break;
       }
     }
@@ -108,6 +120,6 @@ void loop()
 
     //Print messages
     //Serial.println(loadCell);
-    Serial.println(Main.getCycleTime());
+    Serial.println(LoadCell.getScaledValue(0));
   }
 }

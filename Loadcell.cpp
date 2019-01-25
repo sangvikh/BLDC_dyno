@@ -34,19 +34,18 @@ void LoadCell::tare()
   }
 }
 
-float LoadCell::getTorque(unsigned char lc1, unsigned char lc2)
-{
-  refresh();
-  scaleValues();
-  return radius_*(scaledValue_[lc1]+scaledValue_[lc2]);
-}
-
 void LoadCell::refresh()
 {
   if (scales.is_ready())
   {
     scales.readRaw(rawValue_);
   }
+    scaleValues();
+}
+
+float LoadCell::getTorque(unsigned char lc1, unsigned char lc2)
+{
+  return radius_*(scaledValue_[lc1]+scaledValue_[lc2]);
 }
 
 void LoadCell::scaleValues()

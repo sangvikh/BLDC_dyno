@@ -15,9 +15,24 @@ public:
 
   //Tares all load cells
   void tare();
+  
+  //Updates values
+  void refresh();
 
   //Returns torque from one of the pairs
   float getTorque(unsigned char lc1, unsigned char lc2);
+
+  //Returns scaled value from one of the load cells
+  float getScaledValue(unsigned char i)
+  {
+    return scaledValue_[i];
+  }
+
+  //Returns raw value from one of the load cells
+  float getRawValue(unsigned char i)
+  {
+    return rawValue_[i];
+  }
   
 private:
   unsigned char numberOfLoadCells_;
@@ -25,7 +40,7 @@ private:
   long spanValue_[4] = {};
   long tareValue_[4] = {};
   long rawValue_[4] = {};
-  long scaledValue_[4] = {};
+  float scaledValue_[4] = {};
   float radius_ = 0.055;  //Distance between load cells
   float torque_[2] = {};
   float calibrationMass_ = 5.0;
@@ -33,9 +48,6 @@ private:
   //Private help functions
   //Scales raw values to calibration values
   void scaleValues();
-
-  //Updates values
-  void refresh();
 };
 
 #endif
