@@ -6,8 +6,8 @@
 //Includes
 #include <FlexCAN.h>
 #include "VescUart.h"
-#include "Loadcell.h"
-#include "Brake.h"
+#include "LoadCell.h"
+#include "CycleTime.h"
 #include "config.h"
 #include "functions.h"
 #include "variables.h"
@@ -24,7 +24,6 @@ static CAN_message_t msg;
 float rpmSet = 0.0;
 float currentSet = 0.0;
 float rpm = 0.0;
-long loadCell = 0;
 
 
 void setup()
