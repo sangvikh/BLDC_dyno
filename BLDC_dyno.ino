@@ -44,6 +44,9 @@ void setup()
 
   //PinModes
   pinMode(13,OUTPUT);
+
+  //Load loadcell calibration values
+  LoadCell.loadCalibration();
 }
 
 
@@ -89,11 +92,14 @@ void loop()
         case 0x12:
           LoadCell.tare();
           break;
+        case 0x05:
+          LoadCell.saveCalibration();
+          break;
       }
     }
     
     //RPM ramping
-    ramp(rpmSet, 10.0, 10000.0, rpm, cycleTime);
+    ramp(rpmSet, 10.0, 10000.0, cycleTime, rpm);
     
     //Set motor RPM and current
     if (Brake.data.rpm >= rpmSet*0.95 && Brake.data.avgMotorCurrent < currentSet)

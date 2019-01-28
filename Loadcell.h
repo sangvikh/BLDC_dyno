@@ -27,6 +27,12 @@ public:
 
   //Returns raw value from one of the load cells
   float getRawValue(unsigned char i) {return rawValue_[i];}
+
+  //Saves calibration data
+  void saveCalibration();
+
+  //Loads calibration data
+  void loadCalibration();
   
 private:
   unsigned char numberOfLoadCells_;

@@ -1,14 +1,12 @@
 #include "LoadCell.h"
 #include "HX711-multi.h"
+#include "functions.h"
 
 //HX711 scale setup
 #define CLK 5      // clock pin to the load cell amp
 byte DOUTS[1] = {6};    //data pins
 #define CHANNEL_COUNT sizeof(DOUTS)/sizeof(byte)
 HX711MULTI scales(CHANNEL_COUNT, DOUTS, CLK);
-
-float mapf(long x, long x0, long x1, float y0, float y1)
-{return y0+((float)x-x0)*(y1-y0)/(x1-x0);}
 
 LoadCell::LoadCell(){}
 LoadCell::~LoadCell(){}
@@ -46,6 +44,24 @@ void LoadCell::refresh()
 float LoadCell::getTorque(unsigned char lc1, unsigned char lc2)
 {
   return radius_*(scaledValue_[lc1]+scaledValue_[lc2]);
+}
+
+void LoadCell::saveCalibration()
+{
+  for (unsigned int i = 0; i < CHANNEL_COUNT; i++)
+  {
+    EEPROMWritelong(4*i,zeroValue_[i]);
+    EEPROMWritelong(16+4*i,spanValue_[i]);
+  }
+}
+
+void LoadCell::loadCalibration()
+{
+  for (unsigned int i = 0; i < CHANNEL_COUNT; i++)
+  {
+    zeroValue_[i] = EEPROMReadlong(4*i);
+    spanValue_[i] = EEPROMReadlong(16+4*i);
+  }
 }
 
 void LoadCell::scaleValues()
