@@ -43,5 +43,5 @@ long EEPROMReadlong(long address)
 
 float mapf(long x, long x0, long x1, float y0, float y1)
 {
-  return y0+((float)x-x0)*(y1-y0)/(x1-x0);
+  return y0+((float)x-(float)x0)*(y1-y0)/((float)x1-(float)x0);
 }
