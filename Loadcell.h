@@ -30,6 +30,9 @@ public:
 
   //Sets the mass used for calibration
   void setCalibrationMass(float mass);
+
+  //Sets the mass used for calibration
+  float getCalibrationMass();
   
   //Saves calibration data
   void saveCalibration();

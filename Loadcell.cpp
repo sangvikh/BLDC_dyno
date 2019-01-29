@@ -52,6 +52,11 @@ void LoadCell::setCalibrationMass(float mass)
   calibrationMass_ = mass;
 }
 
+float LoadCell::getCalibrationMass()
+{
+  return calibrationMass_;
+}
+
 void LoadCell::saveCalibration()
 {
   int i = 0;
