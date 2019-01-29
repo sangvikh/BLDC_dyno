@@ -46,6 +46,11 @@ float LoadCell::getTorque(unsigned char lc1, unsigned char lc2)
   return radius_*(scaledValue_[lc1]+scaledValue_[lc2]);
 }
 
+void LoadCell::setCalibrationMass(float mass)
+{
+  calibrationMass_ = mass;
+}
+
 void LoadCell::saveCalibration()
 {
   for (unsigned int i = 0; i < CHANNEL_COUNT; i++)

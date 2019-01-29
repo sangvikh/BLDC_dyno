@@ -28,6 +28,9 @@ public:
   //Returns raw value from one of the load cells
   float getRawValue(unsigned char i) {return rawValue_[i];}
 
+  //Sets the mass used for calibration
+  void setCalibrationMass(float mass);
+  
   //Saves calibration data
   void saveCalibration();
 
