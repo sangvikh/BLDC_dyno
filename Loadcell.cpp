@@ -4,8 +4,8 @@
 #include "EEPROMAnything.h"
 
 //HX711 scale setup
-#define CLK 5      // clock pin to the load cell amp
-byte DOUTS[1] = {6};    //data pins
+#define CLK 10      // clock pin to the load cell amp
+byte DOUTS[1] = {11};    //data pins
 #define CHANNEL_COUNT sizeof(DOUTS)/sizeof(byte)
 HX711MULTI scales(CHANNEL_COUNT, DOUTS, CLK);
 
@@ -60,17 +60,17 @@ float LoadCell::getCalibrationMass()
 void LoadCell::saveCalibration()
 {
   int i = 0;
-  i = i + EEPROM_writeAnything(i, zeroValue_);
-  i = i + EEPROM_writeAnything(i, spanValue_);
-  i = i + EEPROM_writeAnything(i, calibrationMass_);
+  i += EEPROM_writeAnything(i, zeroValue_);
+  i += EEPROM_writeAnything(i, spanValue_);
+  i += EEPROM_writeAnything(i, calibrationMass_);
 }
 
 void LoadCell::loadCalibration()
 {
   int i = 0;
-  i = i + EEPROM_readAnything(i, zeroValue_);
-  i = i + EEPROM_readAnything(i, spanValue_);
-  i = i + EEPROM_readAnything(i, calibrationMass_);
+  i += EEPROM_readAnything(i, zeroValue_);
+  i += EEPROM_readAnything(i, spanValue_);
+  i += EEPROM_readAnything(i, calibrationMass_);
 }
 
 void LoadCell::scaleValues()

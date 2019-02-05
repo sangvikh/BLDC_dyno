@@ -4,13 +4,15 @@
  */
 
 //Includes
-#include <FlexCAN.h>
+//#include <FlexCAN.h>
 #include "VescUart.h"
 #include "LoadCell.h"
 #include "CycleTime.h"
 #include "config.h"
 #include "functions.h"
 #include "variables.h"
+#include <SD.h>
+#include <SPI.h>
 
 //Initiate classes
 VescUart Brake;   //Brake VESC
@@ -19,17 +21,22 @@ CycleTime Main(10);  //Creates a check for a fixed cycle time
 LoadCell LoadCell;   //Initiate scales
 
 //Global variables
-static CAN_message_t inMsg;
-static CAN_message_t msg;
+//static CAN_message_t inMsg;
+//static CAN_message_t msg;
 float rpmSet = 0.0;
 float currentSet = 0.0;
 float rpm = 0.0;
+File logFile;
+const int bufferSDsize = 50;
+char bufferSD[bufferSDsize][32];
+int bufferLocation = 0;
 
 
 void setup()
 {
   //Setup debug serial
   Serial.begin(serialBaud);
+  Serial.setDebugOutput(true);
 
   //Setup serial to VESC's
   Serial1.begin(serialBaud);
@@ -40,13 +47,25 @@ void setup()
   DUT.setSerialPort(&Serial2);
 
   //Begin CAN communication
-  Can0.begin(CANbaud);
+//  Can0.begin(CANbaud);
 
   //PinModes
   pinMode(13,OUTPUT);
+  pinMode(CSpin, OUTPUT);
 
   //Load loadcell calibration values
   LoadCell.loadCalibration();
+
+  //Begin SD card
+  if (SD.begin())
+  {
+    Serial.println("SD card is ready to use.");
+  }
+  else
+  {
+    Serial.println("SD card initialization failed");
+    return;
+  }
 }
 
 
@@ -62,7 +81,7 @@ void loop()
 
     //Update load cells
     LoadCell.refresh();
-
+/*
     //Read incoming CAN messages
     while (Can0.available()) 
     {
@@ -95,9 +114,12 @@ void loop()
         case 0x05:
           LoadCell.saveCalibration();
           break;
+        case 0x06:
+          LoadCell.setCalibrationMass((float)inMsg.buf[0]/10);
+          break;
       }
     }
-    
+*/    
     //RPM ramping
     ramp(rpmSet, 10.0, 10000.0, cycleTime, rpm);
     
@@ -112,7 +134,7 @@ void loop()
     }
 
     //Test CAN, also useful for verifying cycle time in PCAN
-    msg.ext = 0;
+/*    msg.ext = 0;
     msg.id = 0x100;
     msg.len = 4;
     msg.buf[0] = 1;
@@ -120,10 +142,30 @@ void loop()
     msg.buf[2] = 3;
     msg.buf[3] = 7;
     Can0.write(msg);
-
+*/
     //Set outputs
 
     //Print messages
     Serial.println(LoadCell.getScaledValue(0));
+
+    ////////////////Log to SD card///////////////////////
+
+    //Save in buffer
+    if (bufferLocation < bufferSDsize)
+    {
+      sprintf(bufferSD[bufferLocation], "%f,%ld,%f", LoadCell.getScaledValue(0), Brake.data.rpm, cycleTime);
+      bufferLocation++;
+    }
+    else
+    {
+      //Write to card
+      logFile = SD.open("log.txt", FILE_WRITE);
+      for (int i = 0; i < bufferSDsize; i++)
+      {
+        logFile.println(bufferSD[i]);
+      }
+      logFile.close();
+      bufferLocation = 0;
+    }
   }
 }
