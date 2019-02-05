@@ -4,7 +4,7 @@
  */
 
 //Includes
-//#include <FlexCAN.h>
+#include <FlexCAN.h>
 #include "VescUart.h"
 #include "LoadCell.h"
 #include "CycleTime.h"
@@ -21,8 +21,8 @@ CycleTime Main(10);  //Creates a check for a fixed cycle time
 LoadCell LoadCell;   //Initiate scales
 
 //Global variables
-//static CAN_message_t inMsg;
-//static CAN_message_t msg;
+static CAN_message_t inMsg;
+static CAN_message_t msg;
 float rpmSet = 0.0;
 float currentSet = 0.0;
 float rpm = 0.0;
@@ -34,20 +34,19 @@ int bufferLocation = 0;
 
 void setup()
 {
-  //Setup debug serial
+  //////////////////Setup debug serial/////////////////
   Serial.begin(serialBaud);
-  Serial.setDebugOutput(true);
 
-  //Setup serial to VESC's
+  ///////////Setup serial to VESC's///////////////
   Serial1.begin(serialBaud);
   Serial2.begin(serialBaud);
 
-  //Define which serial ports to use for VESC's
+  /////////////Define which serial ports to use for VESC's///////////////
   Brake.setSerialPort(&Serial1);
   DUT.setSerialPort(&Serial2);
 
   //Begin CAN communication
-//  Can0.begin(CANbaud);
+  Can0.begin(CANbaud);
 
   //PinModes
   pinMode(13,OUTPUT);
@@ -81,7 +80,7 @@ void loop()
 
     //Update load cells
     LoadCell.refresh();
-/*
+
     //Read incoming CAN messages
     while (Can0.available()) 
     {
@@ -119,7 +118,7 @@ void loop()
           break;
       }
     }
-*/    
+    
     //RPM ramping
     ramp(rpmSet, 10.0, 10000.0, cycleTime, rpm);
     
@@ -134,7 +133,7 @@ void loop()
     }
 
     //Test CAN, also useful for verifying cycle time in PCAN
-/*    msg.ext = 0;
+    msg.ext = 0;
     msg.id = 0x100;
     msg.len = 4;
     msg.buf[0] = 1;
@@ -142,7 +141,7 @@ void loop()
     msg.buf[2] = 3;
     msg.buf[3] = 7;
     Can0.write(msg);
-*/
+
     //Set outputs
 
     //Print messages
