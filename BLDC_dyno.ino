@@ -23,25 +23,22 @@ LoadCell LoadCell;   //Initiate scales
 //Global variables
 static CAN_message_t inMsg;
 static CAN_message_t msg;
-float rpmSet = 0.0;
-float currentSet = 0.0;
-float rpm = 0.0;
 File logFile;
-const int bufferSDsize = 50;
+const int bufferSDsize(50);
 char bufferSD[bufferSDsize][32];
-int bufferLocation = 0;
+int bufferLocation(0);
 
 
 void setup()
 {
-  //////////////////Setup debug serial/////////////////
+  //Setup debug serial
   Serial.begin(serialBaud);
 
-  ///////////Setup serial to VESC's///////////////
+  //Setup serial to VESC's
   Serial1.begin(serialBaud);
   Serial2.begin(serialBaud);
 
-  /////////////Define which serial ports to use for VESC's///////////////
+  //Define which serial ports to use for VESC's
   Brake.setSerialPort(&Serial1);
   DUT.setSerialPort(&Serial2);
 
@@ -70,10 +67,10 @@ void setup()
 
 void loop()
 {  
-  if(Main.checkTime()) //
+  if(Main.checkTime())
   {
     //Gets the cycle time
-    float cycleTime = Main.getCycleTime();
+    cycleTime = Main.getCycleTime();
     
     //Get data from brake
     Brake.getVescValues();
@@ -119,9 +116,6 @@ void loop()
       }
     }
     
-    //RPM ramping
-    ramp(rpmSet, 10.0, 10000.0, cycleTime, rpm);
-    
     //Set motor RPM and current
     if (Brake.data.rpm >= rpmSet*0.95 && Brake.data.avgMotorCurrent < currentSet)
     {
@@ -142,29 +136,7 @@ void loop()
     msg.buf[3] = 7;
     Can0.write(msg);
 
-    //Set outputs
-
     //Print messages
     Serial.println(LoadCell.getScaledValue(0));
-
-    ////////////////Log to SD card///////////////////////
-
-    //Save in buffer
-    if (bufferLocation < bufferSDsize)
-    {
-      sprintf(bufferSD[bufferLocation], "%f,%ld,%f", LoadCell.getScaledValue(0), Brake.data.rpm, cycleTime);
-      bufferLocation++;
-    }
-    else
-    {
-      //Write to card
-      logFile = SD.open("log.txt", FILE_WRITE);
-      for (int i = 0; i < bufferSDsize; i++)
-      {
-        logFile.println(bufferSD[i]);
-      }
-      logFile.close();
-      bufferLocation = 0;
-    }
   }
 }

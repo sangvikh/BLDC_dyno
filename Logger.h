@@ -1,34 +1,21 @@
-#include <SD.h>
-#include <SPI.h>
 
-//SPI CS pin
-const int chipSelect = 10;
 
-//Begin SD logger
-Serial.print("Initializing SD card...");
 
-// see if the card is present and can be initialized:
-if (!SD.begin(chipSelect))
+//Log to SD card        <<<< Put inside some function
+//Save in buffer
+if (bufferLocation < bufferSDsize)
 {
-  Serial.println("Card failed, or not present");
-  // don't do anything more:
-  return;
+  sprintf(bufferSD[bufferLocation], "%f,%ld,%f", LoadCell.getScaledValue(0), Brake.data.rpm, cycleTime);
+  bufferLocation++;
 }
-Serial.println("card initialized.");
-
-//Opens a new log file
-File dataFile = SD.open("datalog.txt", FILE_WRITE);
-
-//Checks if file is available
-if (dataFile)
-{
-  dataFile.println(dataString);
-  dataFile.close();
-  // print to the serial port too:
-  Serial.println(dataString);
-}  
-// if the file isn't open, pop up an error:
 else
 {
-  Serial.println("error opening datalog.txt");
-} 
+  //Write to card
+  logFile = SD.open("log.txt", FILE_WRITE);
+  for (int i = 0; i < bufferSDsize; i++)
+  {
+    logFile.println(bufferSD[i]);
+  }
+  logFile.close();
+  bufferLocation = 0;
+}
