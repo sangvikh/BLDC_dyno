@@ -2,7 +2,7 @@
 #define FUNCTIONS_H
 
 //Ramps output to input with ramp time per range
-void ramp(float in, float rampTime, float range, float cycleTime, float& out);
+void ramp(float in, float rampTime, float range, float& out);
 
 //Soft cutoff function for current/RPM
 void cutoff(float actualRPM, float maxRPM, float maxCurrent);

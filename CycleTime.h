@@ -1,5 +1,5 @@
-#ifndef BRAKE_H
-#define BRAKE_H
+#ifndef CYCLETIME_H
+#define CYCLETIME_H
 
 class CycleTime
 {

@@ -8,26 +8,20 @@
 #include "VescUart.h"
 #include "LoadCell.h"
 #include "CycleTime.h"
+#include "Dyno.h"
 #include "config.h"
 #include "functions.h"
 #include "variables.h"
-#include <SD.h>
-#include <SPI.h>
 
 //Initiate classes
 VescUart Brake;   //Brake VESC
 VescUart DUT;     //Device under test VESC
 CycleTime Main(10);  //Creates a check for a fixed cycle time
 LoadCell LoadCell;   //Initiate scales
+Dyno Dyno;           //Dyno program sequence
 
-//Global variables
-static CAN_message_t inMsg;
+//CAN message
 static CAN_message_t msg;
-File logFile;
-const int bufferSDsize(50);
-char bufferSD[bufferSDsize][32];
-int bufferLocation(0);
-
 
 void setup()
 {
@@ -45,23 +39,8 @@ void setup()
   //Begin CAN communication
   Can0.begin(CANbaud);
 
-  //PinModes
-  pinMode(13,OUTPUT);
-  pinMode(CSpin, OUTPUT);
-
   //Load loadcell calibration values
   LoadCell.loadCalibration();
-
-  //Begin SD card
-  if (SD.begin())
-  {
-    Serial.println("SD card is ready to use.");
-  }
-  else
-  {
-    Serial.println("SD card initialization failed");
-    return;
-  }
 }
 
 
@@ -69,11 +48,12 @@ void loop()
 {  
   if(Main.checkTime())
   {
-    //Gets the cycle time
+    //Gets the cycle time, stores it in a global variable
     cycleTime = Main.getCycleTime();
     
-    //Get data from brake
+    //Get data from vesc's
     Brake.getVescValues();
+    DUT.getVescValues();
 
     //Update load cells
     LoadCell.refresh();
@@ -81,22 +61,22 @@ void loop()
     //Read incoming CAN messages
     while (Can0.available()) 
     {
-      Can0.read(inMsg); 
-      switch(inMsg.id)
+      Can0.read(msg); 
+      switch(msg.id)
       {
         case 0x21:
           digitalWrite(13,!digitalRead(13));    //Toggle LED
           break;
         case 0x01:
-          rpmSet = (float)(inMsg.buf[0]*100);
-          currentSet = 3.0;
+          rpm = (float)(msg.buf[0]*100);
+          current = 3.0;
           break;
         case 0x02:
-          rpmSet = 0.0;
-          currentSet = 0.0;
+          rpm = 0.0;
+          current = 0.0;
           break;
         case 0x99:
-          Main.setCycleTime(inMsg.buf[0]);
+          Dyno.startDynoTest();
           break;
         case 0x10:
           LoadCell.zero(0);
@@ -111,20 +91,16 @@ void loop()
           LoadCell.saveCalibration();
           break;
         case 0x06:
-          LoadCell.setCalibrationMass((float)inMsg.buf[0]/10);
+          LoadCell.setCalibrationMass((float)msg.buf[0]/10);
           break;
       }
     }
+
+    //Update status of program sequence
+    Dyno.update();
     
-    //Set motor RPM and current
-    if (Brake.data.rpm >= rpmSet*0.95 && Brake.data.avgMotorCurrent < currentSet)
-    {
-      Brake.setRPM(rpm);
-    }
-    else
-    {
-      Brake.setCurrent(currentSet);
-    }
+    //Set VESC ouputs
+    Brake.setRPM(rpm);
 
     //Test CAN, also useful for verifying cycle time in PCAN
     msg.ext = 0;
@@ -137,6 +113,6 @@ void loop()
     Can0.write(msg);
 
     //Print messages
-    Serial.println(LoadCell.getScaledValue(0));
+    Serial.println(rpm);
   }
 }

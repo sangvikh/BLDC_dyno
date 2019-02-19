@@ -1,21 +1,26 @@
+#ifndef LOGGER_H
+#define LOGGER_H
 
-
-
-//Log to SD card        <<<< Put inside some function
-//Save in buffer
-if (bufferLocation < bufferSDsize)
+class Logger
 {
-  sprintf(bufferSD[bufferLocation], "%f,%ld,%f", LoadCell.getScaledValue(0), Brake.data.rpm, cycleTime);
-  bufferLocation++;
-}
-else
-{
-  //Write to card
-  logFile = SD.open("log.txt", FILE_WRITE);
-  for (int i = 0; i < bufferSDsize; i++)
-  {
-    logFile.println(bufferSD[i]);
-  }
-  logFile.close();
-  bufferLocation = 0;
-}
+public:
+  Logger();
+  ~Logger();
+
+  //opens new file on SD card
+  void begin();
+
+  //Logs data to card
+  void log(float *data);
+
+  //Closes SD file
+  void end();
+
+  //Sets the filename of the log file
+  void setFileName(char input[]);
+  
+private:
+  char fileName_[16] = "log.txt";
+};
+
+#endif

@@ -1,11 +1,17 @@
-#ifndef BRAKE_H
-#define BRAKE_H
+#ifndef DYNO_H
+#define DYNO_H
 
 class Dyno
 {
 public:
   Dyno();
   ~Dyno();
+
+  //Starts all the supporting functions
+  void begin();
+
+  //Ends the supporting functions
+  void end();
   
   //Starts a dyno run
   void startDynoTest();

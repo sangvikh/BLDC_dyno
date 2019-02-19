@@ -1,19 +1,18 @@
 #include "Dyno.h"
-#include "CycleTime.h"
-#include "VescUart.h"
 #include "variables.h"
 #include "functions.h"
+#include "Logger.h"
 
-Dyno::Dyno()
-{
-  
-}
+Logger Logger;
+
+Dyno::Dyno(){}
 Dyno::~Dyno(){}
 
 void Dyno::startDynoTest()
 {
   if (tempTest_ == 0)
   {
+    Logger.begin();
     dynoTest_ = 1;
   }
 }
@@ -32,18 +31,27 @@ void Dyno::update()
   {
     dynoTest();
   }
-  if (tempTest_ == 1)
+  else if (tempTest_ == 1)
   {
     tempTest();
   }
-  //Now update outputs (Should be global)
+  else
+  {
+    rpm = 0.0;
+  }
 }
 
-void dynoTest()
+void Dyno::dynoTest()
 {
-  //Start logging
-  //DUT - max current
-  //Ramp brake
+  rpmSet = 10000.0;
+  ramp(rpmSet, 15.0, rpmSet, rpm);
+  if (rpm >= rpmSet)
+  {
+    dynoTest_ = 0;
+    rpmSet = 0;
+    rpm = 0;
+    Logger.end();
+  }
 }
 
 void Dyno::tempTest()

@@ -1,5 +1,5 @@
-#ifndef LoadCell_H
-#define LoadCell_H
+#ifndef LOADCELL_H
+#define LOADCELL_H
 
 class LoadCell
 {

@@ -3,7 +3,9 @@
 
 extern float rpmSet;
 extern float currentSet;
+extern float current;
 extern float rpm;
 extern float cycleTime;
+extern float logData[];
 
 #endif

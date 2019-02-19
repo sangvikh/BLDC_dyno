@@ -1,11 +1,13 @@
 #include "functions.h"
+#include "variables.h"
 #include <Arduino.h>
 #include <EEPROM.h>
 
-void ramp(float in, float rampTime, float cycleTime, float range, float& out)
+void ramp(float in, float rampTime, float range, float& out)
 {
   if (in > out) {out = out + cycleTime/rampTime*range;}
-  if (in < out) {out = out - cycleTime/rampTime*range;}
+  else if (in < out) {out = out - cycleTime/rampTime*range;}
+  else {out = in;}      //Fixed not reaching exact setpoint bug
 }
 
 void cutoff(float actualRPM, float maxRPM, float maxCurrent)
