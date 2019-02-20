@@ -12,10 +12,6 @@ Logger::~Logger(){}
 
 void Logger::begin()
 {
-  //set PinModes
-  pinMode(13,OUTPUT);     //Not sure if needed
-  pinMode(CSpin, OUTPUT);
-
   //Begin SD card
   if (SD.begin())
   {
@@ -26,21 +22,21 @@ void Logger::begin()
     Serial.println("SD card initialization failed");
     return;
   }
+
+  //Open the log file
+  logFile = SD.open(fileName_, FILE_WRITE);
 }
 
 void Logger::log(float *data)
 {
-  logFile = SD.open(fileName_, FILE_WRITE);
-  int length = sizeof(data)/sizeof(float);
-  for (int i = 0; i < length; i++)
-  {
-    logFile.print(data[i]); logFile.print(",");
-  }
-  logFile.println();
+  char dataString[32];
+  sprintf(dataString, "%f, %f", data[0], data[1]);
+  logFile.println(dataString);
 }
 
 void Logger::end()
 {
+  //Close log file
   logFile.close();
 }
 

@@ -12,6 +12,7 @@ void Dyno::startDynoTest()
 {
   if (tempTest_ == 0)
   {
+    Logger.setFileName("dyno.txt");
     Logger.begin();
     dynoTest_ = 1;
   }
@@ -43,6 +44,8 @@ void Dyno::update()
 
 void Dyno::dynoTest()
 {
+  float logData[] = {rpmActual, torque};
+  Logger.log(logData);
   rpmSet = 10000.0;
   ramp(rpmSet, 15.0, rpmSet, rpm);
   if (rpm >= rpmSet)

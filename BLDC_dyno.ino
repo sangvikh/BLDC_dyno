@@ -53,10 +53,12 @@ void loop()
     
     //Get data from vesc's
     Brake.getVescValues();
-    DUT.getVescValues();
+    //DUT.getVescValues();
+    rpmActual = Brake.data.rpm;
 
     //Update load cells
     LoadCell.refresh();
+    torque = LoadCell.getScaledValue(0);
 
     //Read incoming CAN messages
     while (Can0.available()) 
@@ -113,6 +115,6 @@ void loop()
     Can0.write(msg);
 
     //Print messages
-    Serial.println(rpm);
+    Serial.println(rpmActual);
   }
 }
