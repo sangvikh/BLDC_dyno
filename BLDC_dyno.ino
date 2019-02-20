@@ -101,8 +101,19 @@ void loop()
     //Update status of program sequence
     Dyno.update();
     
-    //Set VESC ouputs
-    Brake.setRPM(rpm);
+    //Set VESC ouputs, set to 0 to disable writing.
+    if (rpm > 0)
+    {      
+      Brake.setRPM(rpm);
+    }
+    if (current > 0)
+    {      
+      Brake.setCurrent(current);
+    }
+    if (currentBrake > 0)
+    {      
+      Brake.setBrakeCurrent(currentBrake);
+    }
 
     //Test CAN, also useful for verifying cycle time in PCAN
     msg.ext = 0;
