@@ -5,7 +5,6 @@
 
 //Includes
 #include <FlexCAN.h>
-#include "VescUart.h"
 #include "LoadCell.h"
 #include "CycleTime.h"
 #include "Dyno.h"
@@ -14,8 +13,6 @@
 #include "variables.h"
 
 //Initiate classes
-VescUart Brake;   //Brake VESC
-VescUart DUT;     //Device under test VESC
 CycleTime Main(10);  //Creates a check for a fixed cycle time
 LoadCell LoadCell;   //Initiate scales
 Dyno Dyno;           //Dyno program sequence
@@ -28,13 +25,8 @@ void setup()
   //Setup debug serial
   Serial.begin(serialBaud);
 
-  //Setup serial to VESC's
-  Serial1.begin(serialBaud);
-  Serial2.begin(serialBaud);
-
-  //Define which serial ports to use for VESC's
-  Brake.setSerialPort(&Serial1);
-  DUT.setSerialPort(&Serial2);
+  //Initialize Dyno class
+  Dyno.begin();
 
   //Begin CAN communication
   Can0.begin(CANbaud);
@@ -49,12 +41,7 @@ void loop()
   if(Main.checkTime())
   {
     //Gets the cycle time, stores it in a global variable
-    cycleTime = Main.getCycleTime();
-    
-    //Get data from vesc's
-    Brake.getVescValues();
-    //DUT.getVescValues();
-    rpmActual = Brake.data.rpm;
+    cycleTime = Main.getCycleTime();    
 
     //Update load cells
     LoadCell.refresh();
@@ -101,20 +88,6 @@ void loop()
     //Update status of program sequence
     Dyno.update();
     
-    //Set VESC ouputs, set to 0 to disable writing.
-    if (rpm > 0)
-    {      
-      Brake.setRPM(rpm);
-    }
-    if (current > 0)
-    {      
-      Brake.setCurrent(current);
-    }
-    if (currentBrake > 0)
-    {      
-      Brake.setBrakeCurrent(currentBrake);
-    }
-
     //Test CAN, also useful for verifying cycle time in PCAN
     msg.ext = 0;
     msg.id = 0x100;
