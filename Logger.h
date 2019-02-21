@@ -10,8 +10,8 @@ public:
   //opens new file on SD card
   void begin();
 
-  //Logs data to card
-  void log(float *data);
+  //Logs data to card, takes in a float array
+  void log(float *data, unsigned int length);
 
   //Closes SD file
   void end();

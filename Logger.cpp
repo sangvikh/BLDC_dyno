@@ -23,15 +23,18 @@ void Logger::begin()
     return;
   }
 
-  //Open the log file
+  //Delete old file and open a new one
+  SD.remove(fileName_);
   logFile = SD.open(fileName_, FILE_WRITE);
 }
 
-void Logger::log(float *data)
+void Logger::log(float *data, unsigned int length)
 {
-  char dataString[32];
-  sprintf(dataString, "%f, %f", data[0], data[1]);
-  logFile.println(dataString);
+  for (int i = 0; i < length; i++)
+  {
+    logFile.print(data[i], 3); logFile.print(',');
+  }
+  logFile.println();
 }
 
 void Logger::end()

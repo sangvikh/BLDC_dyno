@@ -54,7 +54,7 @@ void loop()
     //Get data from vesc's
     Brake.getVescValues();
     //DUT.getVescValues();
-    rpmActual = Brake.data.rpm;
+    rpmActual = Brake.data.rpm/poleCount;
 
     //Update load cells
     LoadCell.refresh();
@@ -125,7 +125,5 @@ void loop()
     msg.buf[3] = 7;
     Can0.write(msg);
 
-    //Print messages
-    Serial.println(rpmActual);
   }
 }

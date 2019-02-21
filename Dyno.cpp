@@ -44,10 +44,11 @@ void Dyno::update()
 
 void Dyno::dynoTest()
 {
-  float logData[] = {rpmActual, torque};
-  Logger.log(logData);
-  rpmSet = 10000.0;
-  ramp(rpmSet, 15.0, rpmSet, rpm);
+  float logData[] = {rpmActual, torque, cycleTime};
+  unsigned int length = sizeof(logData)/sizeof(float);
+  Logger.log(logData, length);
+  rpmSet = 20000.0;
+  ramp(rpmSet, 10.0, rpmSet, rpm);
   if (rpm >= rpmSet)
   {
     dynoTest_ = 0;
