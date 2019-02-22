@@ -71,7 +71,6 @@ void loop()
           break;
         case 0x01:
           rpm = (float)(msg.buf[0]*100);
-          current = 3.0;
           break;
         case 0x02:
           rpm = 0.0;

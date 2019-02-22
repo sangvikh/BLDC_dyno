@@ -36,10 +36,6 @@ void Dyno::update()
   {
     tempTest();
   }
-  else
-  {
-    rpm = 0.0;
-  }
 }
 
 void Dyno::dynoTest()

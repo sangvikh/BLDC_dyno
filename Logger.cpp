@@ -15,7 +15,7 @@ void Logger::begin()
   //Begin SD card
   if (SD.begin())
   {
-    Serial.println("SD card is ready to use.");
+    Serial.println("Logging started");
   }
   else
   {
@@ -41,6 +41,7 @@ void Logger::end()
 {
   //Close log file
   logFile.close();
+  Serial.println("Logging ended");
 }
 
 void Logger::setFileName(char input[])
