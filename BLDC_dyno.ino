@@ -70,7 +70,7 @@ void loop()
           digitalWrite(13,!digitalRead(13));    //Toggle LED
           break;
         case 0x01:
-          rpm = (float)(msg.buf[0]*100);
+          rpm = (float)(msg.buf[0]*100);-
           break;
         case 0x02:
           rpm = 0.0;
@@ -103,7 +103,7 @@ void loop()
     //Set VESC ouputs, set to 0 to disable writing.
     if (rpm > 0)
     {      
-      Brake.setRPM(rpm);
+      Brake.setRPM(rpm*poleCount);
     }
     if (current > 0)
     {      
