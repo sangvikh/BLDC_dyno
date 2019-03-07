@@ -43,7 +43,7 @@ void Dyno::dynoTest()
   float logData[] = {rpmActual, torque, cycleTime};
   unsigned int length = sizeof(logData)/sizeof(float);
   Logger.log(logData, length);
-  rpmSet = 3000.0;
+  rpmSet = 8000.0;
   ramp(rpmSet, 10.0, rpmSet, rpm);
   if (rpm >= rpmSet)
   {

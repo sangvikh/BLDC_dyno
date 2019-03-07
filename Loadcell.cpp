@@ -5,7 +5,7 @@
 
 //HX711 scale setup
 #define CLK 5      // clock pin to the load cell amp
-byte DOUTS[1] = {6};    //data pins
+byte DOUTS[] = {6, 14};    //data pins
 #define CHANNEL_COUNT sizeof(DOUTS)/sizeof(byte)
 HX711MULTI scales(CHANNEL_COUNT, DOUTS, CLK);
 
@@ -39,12 +39,24 @@ void LoadCell::refresh()
   {
     scales.readRaw(rawValue_);
   }
-    scaleValues();
+  //This section checks if the value is above or below 2^22. There was problems with overflow from the HX711.
+  for (unsigned int i = 0; i < CHANNEL_COUNT; i++)
+  {
+    if (rawValue_[i] > 0x400000)
+    {
+      rawValue_[i] = rawValue_[i] - 0x400000;
+    }
+    else if (rawValue_[i] < 0x400000)
+    {
+      rawValue_[i] = rawValue_[i] + 0x400000;
+    }
+  }
+  scaleValues();
 }
 
 float LoadCell::getTorque(unsigned char lc1, unsigned char lc2)
 {
-  return radius_*(scaledValue_[lc1]+scaledValue_[lc2]);
+  return radius_*(scaledValue_[lc1]+scaledValue_[lc2])*9.81;
 }
 
 void LoadCell::setCalibrationMass(float mass)

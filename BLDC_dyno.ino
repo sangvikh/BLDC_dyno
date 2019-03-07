@@ -41,6 +41,7 @@ void setup()
 
   //Load loadcell calibration values
   LoadCell.loadCalibration();
+  LoadCell.tare();
 }
 
 
@@ -58,7 +59,6 @@ void loop()
 
     //Update load cells
     LoadCell.refresh();
-    torque = LoadCell.getScaledValue(0);
 
     //Read incoming CAN messages
     while (Can0.available()) 
@@ -80,10 +80,10 @@ void loop()
           Dyno.startDynoTest();
           break;
         case 0x10:
-          LoadCell.zero(0);
+          LoadCell.zero(msg.buf[0]);
           break;
         case 0x11:
-          LoadCell.span(0);
+          LoadCell.span(msg.buf[0]);
           break;
         case 0x12:
           LoadCell.tare();
@@ -124,5 +124,10 @@ void loop()
     msg.buf[3] = 7;
     Can0.write(msg);
 
+    //Write LC data to Serial
+    Serial.print(LoadCell.getScaledValue(0)); Serial.print(","); Serial.println(LoadCell.getScaledValue(1));
+//    Serial.print("LC0: "); Serial.println(LoadCell.getScaledValue(0));
+//    Serial.print("LC1: "); Serial.println(LoadCell.getScaledValue(1));
+//    Serial.print("Torque: "); Serial.println(LoadCell.getTorque(0,1));
   }
 }
