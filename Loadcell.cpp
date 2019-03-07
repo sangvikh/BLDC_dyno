@@ -90,11 +90,7 @@ long LoadCell::overflowFix(long in)
   long out = in;
   if (in > 0x400000)
   {
-    out = in - 0x400000;
-  }
-  else if (in < 0x400000)
-  {
-    out = in + 0x400000;
+    out = in - 0x800000;
   }
   return out;
 }
