@@ -15,13 +15,13 @@ LoadCell::~LoadCell(){}
 void LoadCell::zero(unsigned char i)
 {
   scales.tare(100,0);
-  zeroValue_[i] = scales.get_offset(i);
+  zeroValue_[i] = overflowFix(scales.get_offset(i));
 }
 
 void LoadCell::span(unsigned char i)
 {
   scales.tare(100,0);
-  spanValue_[i] = scales.get_offset(i);
+  spanValue_[i] = overflowFix(scales.get_offset(i));
 }
 
 void LoadCell::tare()
@@ -29,7 +29,7 @@ void LoadCell::tare()
   scales.tare(100,0);
   for (unsigned int i = 0; i < CHANNEL_COUNT; i++)
   {
-    tareValue_[i] = zeroValue_[i] - scales.get_offset(i);
+    tareValue_[i] = zeroValue_[i] - overflowFix(scales.get_offset(i));
   }
 }
 
@@ -38,20 +38,12 @@ void LoadCell::refresh()
   if (scales.is_ready())
   {
     scales.readRaw(rawValue_);
-  }
-  //This section checks if the value is above or below 2^22. There was problems with overflow from the HX711.
-  for (unsigned int i = 0; i < CHANNEL_COUNT; i++)
-  {
-    if (rawValue_[i] > 0x400000)
+    for (unsigned int i = 0; i < CHANNEL_COUNT; i++)
     {
-      rawValue_[i] = rawValue_[i] - 0x400000;
+      rawValue_[i] = overflowFix(rawValue_[i]);
     }
-    else if (rawValue_[i] < 0x400000)
-    {
-      rawValue_[i] = rawValue_[i] + 0x400000;
-    }
+    scaleValues();
   }
-  scaleValues();
 }
 
 float LoadCell::getTorque(unsigned char lc1, unsigned char lc2)
@@ -91,4 +83,18 @@ void LoadCell::scaleValues()
   {
     scaledValue_[i] = mapf((rawValue_[i] + tareValue_[i]), zeroValue_[i], spanValue_[i], 0.0, calibrationMass_);
   }
+}
+
+long LoadCell::overflowFix(long in)
+{
+  long out = in;
+  if (in > 0x400000)
+  {
+    out = in - 0x400000;
+  }
+  else if (in < 0x400000)
+  {
+    out = in + 0x400000;
+  }
+  return out;
 }

@@ -54,6 +54,8 @@ private:
   //Private help functions
   //Scales raw values to calibration values
   void scaleValues();
+  //Fixes overflow problem when using the HX711
+  long overflowFix(long in);
 };
 
 #endif

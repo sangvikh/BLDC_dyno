@@ -30,7 +30,7 @@ void Logger::begin()
 
 void Logger::log(float *data, unsigned int length)
 {
-  for (int i = 0; i < length; i++)
+  for (unsigned int i = 0; i < length; i++)
   {
     logFile.print(data[i], 3); logFile.print(',');
   }
