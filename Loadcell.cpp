@@ -48,7 +48,7 @@ void LoadCell::refresh()
 
 float LoadCell::getTorque(unsigned char lc1, unsigned char lc2)
 {
-  return radius_*(scaledValue_[lc1]+scaledValue_[lc2])*9.81;
+  return radius_*(scaledValue_[lc1]-scaledValue_[lc2])*9.81;
 }
 
 void LoadCell::setCalibrationMass(float mass)
