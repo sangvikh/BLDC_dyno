@@ -13,7 +13,7 @@ Logger::~Logger(){}
 void Logger::begin()
 {
   //Begin SD card
-  if (SD.begin())
+  if (SD.begin(CSpin))
   {
     Serial.println("Logging started");
   }

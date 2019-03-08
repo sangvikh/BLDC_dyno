@@ -66,9 +66,6 @@ void loop()
       Can0.read(msg); 
       switch(msg.id)
       {
-        case 0x21:
-          digitalWrite(13,!digitalRead(13));    //Toggle LED
-          break;
         case 0x01:
           rpm = (float)(msg.buf[0]*100);
           break;
@@ -77,6 +74,7 @@ void loop()
           current = 0.0;
           break;
         case 0x99:
+          LoadCell.tare();
           Dyno.startDynoTest();
           break;
         case 0x10:
@@ -93,6 +91,12 @@ void loop()
           break;
         case 0x06:
           LoadCell.setCalibrationMass((float)msg.buf[0]/10);
+          break;
+        case 0x101:
+          DUTrpm = (float)(msg.buf[0]*100);
+          break;
+        case 0x102:
+          DUTrpm = 0.0;
           break;
       }
     }
@@ -113,6 +117,18 @@ void loop()
     {      
       Brake.setBrakeCurrent(currentBrake);
     }
+    if (DUTrpm > 0)
+    {      
+      DUT.setRPM(DUTrpm*poleCount);
+    }
+    if (DUTcurrent > 0)
+    {      
+      DUT.setCurrent(DUTcurrent);
+    }
+    if (DUTduty > 0)
+    {      
+      DUT.setDuty(DUTduty);
+    }
 
     //Test CAN, also useful for verifying cycle time in PCAN
     msg.ext = 0;
@@ -125,6 +141,7 @@ void loop()
     Can0.write(msg);
 
     //Write LC data to Serial
-    Serial.println(DUT.data.rpm);
+//    Serial.println(DUT.data.rpm);
+//    Serial.println(DUTduty);
   }
 }

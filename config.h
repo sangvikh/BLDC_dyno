@@ -4,7 +4,7 @@
 //Baudrates
 #define CANbaud 500000
 #define serialBaud 115200
-#define CSpin 10
+#define CSpin 14
 #define poleCount 7.0
 
 #endif
