@@ -53,8 +53,9 @@ void loop()
     
     //Get data from vesc's
     Brake.getVescValues();
-    //DUT.getVescValues();
+    DUT.getVescValues();
     rpmActual = Brake.data.rpm/poleCount;
+    torque = LoadCell.getTorque(0,1);
 
     //Update load cells
     LoadCell.refresh();
@@ -124,9 +125,6 @@ void loop()
     Can0.write(msg);
 
     //Write LC data to Serial
-    Serial.println(LoadCell.getRawValue(0));
-//    Serial.print("LC0: "); Serial.println(LoadCell.getScaledValue(0));
-//    Serial.print("LC1: "); Serial.println(LoadCell.getScaledValue(1));
-//    Serial.print("Torque: "); Serial.println(LoadCell.getTorque(0,1));
+    Serial.println(DUT.data.rpm);
   }
 }

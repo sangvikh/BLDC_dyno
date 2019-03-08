@@ -7,6 +7,7 @@ extern float rpm;
 extern float rpmActual;
 extern float current;
 extern float currentBrake;
+extern float currentBrakeSet;
 extern float cycleTime;
 extern float torque;
 

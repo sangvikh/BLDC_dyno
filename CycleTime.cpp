@@ -20,9 +20,9 @@ float CycleTime::getCycleTime()
 
 bool CycleTime::checkTime()
 {
-  if (micros()-lastTime_ >= cycleTime_)
+  if (micros() - lastTime_ >= cycleTime_)
   {
-    cycleTimeActual_ = micros()-lastTime_;
+    cycleTimeActual_ = micros() - lastTime_;
     lastTime_ = micros();
     return 1;
   }

@@ -2,6 +2,7 @@
 #include "variables.h"
 #include "functions.h"
 #include "Logger.h"
+#include "arduino.h"
 
 Logger Logger;
 
@@ -40,23 +41,37 @@ void Dyno::update()
 
 void Dyno::dynoTest()
 {
+  startTime_ = millis();
   float logData[] = {rpmActual, torque, cycleTime};
   unsigned int length = sizeof(logData)/sizeof(float);
   Logger.log(logData, length);
-  rpmSet = 8000.0;
-  ramp(rpmSet, 10.0, rpmSet, rpm);
-  if (rpm >= rpmSet)
+  currentBrakeSet = 30.0;
+  ramp(currentBrakeSet, 20.0, currentBrakeSet, currentBrake);
+  if (currentBrake >= currentBrakeSet || rpmActual <= 0.0)
   {
     dynoTest_ = 0;
-    rpmSet = 0;
-    rpm = 0;
+    currentBrakeSet = 0;
+    currentBrake = 0;
     Logger.end();
   }
 }
 
 void Dyno::tempTest()
 {
+  startTime_ = millis();
   //Start logging
   //Brake - max current
   //DUT - ramp current
+}
+
+int Dyno::poleCheck()
+{
+  startTime_ = millis();
+  rpmSet = 1000.0;
+  int poleCount = 0;
+  if (millis() - startTime_ >= 500)
+  {
+    int poleCount = (int)round(rpmActual/rpm);
+  }
+  return poleCount;
 }
