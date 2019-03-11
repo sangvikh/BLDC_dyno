@@ -42,18 +42,21 @@ void Dyno::update()
 void Dyno::dynoTest()
 {
   startTime_ = millis();
-  float logData[] = {rpmActual, torque, cycleTime};
+  float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual};
   unsigned int length = sizeof(logData)/sizeof(float);
   Logger.log(logData, length);
-  DUTduty = 0.5;
-  currentBrakeSet = 30.0;
-  ramp(currentBrakeSet, 20.0, currentBrakeSet, currentBrake);
-  if (currentBrake >= currentBrakeSet)
+  DUTduty = 0.1;
+  currentSet = 50.0;
+  ramp(currentSet, 20.0, currentSet, current);
+  if (current >= currentSet)
   {
     dynoTest_ = 0;
+    rpmSet = 0;
+    rpm = 0;
     currentBrakeSet = 0;
     currentBrake = 0;
     DUTduty = 0;
+    DUTcurrent = 0;
     Logger.end();
   }
 }

@@ -94,3 +94,11 @@ long LoadCell::overflowFix(long in)
   }
   return out;
 }
+
+long LoadCell::medianFilter(long in)
+{
+  filterBuffer_[2] = filterBuffer_[1];
+  filterBuffer_[1] = filterBuffer_[0];
+  filterBuffer_[0] = in;
+  return 0;
+}

@@ -50,12 +50,15 @@ private:
   float radius_ = 0.055;  //Distance between load cells
   float torque_[2] = {};
   float calibrationMass_ = 5.0;
+  long filterBuffer_[3] = {0};
 
   //Private help functions
   //Scales raw values to calibration values
   void scaleValues();
   //Fixes overflow problem when using the HX711
   long overflowFix(long in);
+  //Stores previous values and returns the median of the last ones
+  long medianFilter(long in);
 };
 
 #endif

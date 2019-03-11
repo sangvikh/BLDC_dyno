@@ -51,11 +51,20 @@ void loop()
     //Gets the cycle time, stores it in a global variable
     cycleTime = Main.getCycleTime();
     
-    //Get data from vesc's
+    //Get data from VESC's
     Brake.getVescValues();
     DUT.getVescValues();
     rpmActual = Brake.data.rpm/poleCount;
     torque = LoadCell.getTorque(0,1);
+    motorCurrent = Brake.data.avgMotorCurrent;
+    DUTmotorCurrent = DUT.data.avgMotorCurrent;
+    dutyActual = Brake.data.dutyCycleNow;
+    DUTdutyActual = DUT.data.dutyCycleNow;
+    inputCurrent = Brake.data.avgInputCurrent;
+    DUTinputCurrent = DUT.data.avgInputCurrent;
+    inputVoltage = Brake.data.inpVoltage;
+    DUTinputCurrent = DUT.data.inpVoltage;
+    
 
     //Update load cells
     LoadCell.refresh();
@@ -141,7 +150,6 @@ void loop()
     Can0.write(msg);
 
     //Write LC data to Serial
-//    Serial.println(DUT.data.rpm);
-//    Serial.println(DUTduty);
+    Serial.println(LoadCell.getTorque(0,1),4);
   }
 }
