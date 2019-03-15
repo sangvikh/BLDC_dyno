@@ -17,8 +17,24 @@ void Dyno::startDynoTest()
     Logger.begin();
     dynoTest_ = 1;
     rpmSet = 10000.0;
-    DUTcurrent = 20.0;
+    DUTduty = 0.25;
   }
+}
+
+void Dyno::stopTest()
+{
+    //Enda the dyno test, sets all values to 0
+    dynoTest_ = 0;
+    tempTest_ = 0;
+    rpmSet = 0;
+    rpm = 0;
+    current = 0;
+    currentBrakeSet = 0;
+    currentBrake = 0;
+    DUTduty = 0;
+    DUTcurrent = 0;
+    DUTrpm = 0;
+    Logger.end();
 }
 
 void Dyno::startTempTest()
@@ -48,19 +64,11 @@ void Dyno::dynoTest()
   unsigned int length = sizeof(logData)/sizeof(float);
   Logger.log(logData, length);
   ramp(rpmSet, 1, 100, rpm);
-  if (rpm == rpmSet || DUTinputCurrent < 0.0)
+
+  //Stop criteria
+  if (rpm == rpmSet || DUTinputCurrent < 0.0 || DUTdutyActual >= 0.95 || dutyActual >= 0.95)
   {
-    //Enda the dyno test, sets all values to 0
-    dynoTest_ = 0;
-    rpmSet = 0;
-    rpm = 0;
-    current = 0;
-    currentBrakeSet = 0;
-    currentBrake = 0;
-    DUTduty = 0;
-    DUTcurrent = 0;
-    DUTrpm = 0;
-    Logger.end();
+    stopTest();
   }
 }
 

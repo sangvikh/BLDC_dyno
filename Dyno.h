@@ -16,6 +16,9 @@ public:
   //Starts a dyno run
   void startDynoTest();
 
+  //Stops the current dyno run
+  void stopTest();
+
   //Starts a temperature check, finds maximum nominal current
   void startTempTest();
 

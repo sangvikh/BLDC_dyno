@@ -86,6 +86,8 @@ void loop()
           LoadCell.tare();
           Dyno.startDynoTest();
           break;
+        case 0x100:
+          Dyno.stopTest();
         case 0x10:
           LoadCell.zero(msg.buf[0]);
           break;
@@ -150,6 +152,6 @@ void loop()
     Can0.write(msg);
 
     //Write debug data to serial
-    Serial.println(torque);
+    Serial.println(dutyActual);
   }
 }
