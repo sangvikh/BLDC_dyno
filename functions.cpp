@@ -5,9 +5,12 @@
 
 void ramp(float in, float rampTime, float range, float& out)
 {
-  if (in > out) {out = out + cycleTime/rampTime*range;}
-  else if (in < out) {out = out - cycleTime/rampTime*range;}
-  else {out = in;}      //Fixed not reaching exact setpoint bug
+  if (in > out) {out += cycleTime/rampTime*range;}
+  else if (in < out)
+  {
+    out -= cycleTime/rampTime*range;
+    if (in > out) {out = in;}         //This line checks if the setpoint has been overshot
+  }
 }
 
 void cutoff(float actualRPM, float maxRPM, float maxCurrent)

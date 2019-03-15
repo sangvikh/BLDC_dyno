@@ -16,6 +16,8 @@ void Dyno::startDynoTest()
     Logger.setFileName("dyno.txt");
     Logger.begin();
     dynoTest_ = 1;
+    rpmSet = 10000.0;
+    DUTcurrent = 20.0;
   }
 }
 
@@ -45,18 +47,19 @@ void Dyno::dynoTest()
   float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual};
   unsigned int length = sizeof(logData)/sizeof(float);
   Logger.log(logData, length);
-  DUTduty = 0.1;
-  currentSet = 50.0;
-  ramp(currentSet, 20.0, currentSet, current);
-  if (current >= currentSet)
+  ramp(rpmSet, 1, 100, rpm);
+  if (rpm == rpmSet || DUTinputCurrent < 0.0)
   {
+    //Enda the dyno test, sets all values to 0
     dynoTest_ = 0;
     rpmSet = 0;
     rpm = 0;
+    current = 0;
     currentBrakeSet = 0;
     currentBrake = 0;
     DUTduty = 0;
     DUTcurrent = 0;
+    DUTrpm = 0;
     Logger.end();
   }
 }

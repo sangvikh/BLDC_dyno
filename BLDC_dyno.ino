@@ -63,7 +63,7 @@ void loop()
     inputCurrent = Brake.data.avgInputCurrent;
     DUTinputCurrent = DUT.data.avgInputCurrent;
     inputVoltage = Brake.data.inpVoltage;
-    DUTinputCurrent = DUT.data.inpVoltage;
+    DUTinputVoltage = DUT.data.inpVoltage;
     
 
     //Update load cells
@@ -149,7 +149,7 @@ void loop()
     msg.buf[3] = 7;
     Can0.write(msg);
 
-    //Write LC data to Serial
-    Serial.println(LoadCell.getTorque(0,1),4);
+    //Write debug data to serial
+    Serial.println(torque);
   }
 }
