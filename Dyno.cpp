@@ -11,11 +11,11 @@ Dyno::~Dyno(){}
 
 void Dyno::startDynoTest()
 {
-  if (tempTest_ == 0)
+  if (testState_ == 0)
   {
+    testState_ = 1;
     Logger.setFileName("dyno.txt");
     Logger.begin();
-    dynoTest_ = 1;
     rpmSet = 10000.0;
     DUTduty = 0.25;
   }
@@ -24,8 +24,7 @@ void Dyno::startDynoTest()
 void Dyno::stopTest()
 {
     //Enda the dyno test, sets all values to 0
-    dynoTest_ = 0;
-    tempTest_ = 0;
+    testState_ = 0;
     rpmSet = 0;
     rpm = 0;
     current = 0;
@@ -39,21 +38,25 @@ void Dyno::stopTest()
 
 void Dyno::startTempTest()
 {
-  if (dynoTest_ == 0)
+  if (testState_ == 0)
   {
-    tempTest_ = 1;
+    testState_ = 2;
   }
 }
 
 void Dyno::update()
 {
-  if (dynoTest_ == 1)
+  switch(testState_)
   {
-    dynoTest();
-  }
-  else if (tempTest_ == 1)
-  {
-    tempTest();
+    case 0:
+      //Do nothing
+      break;
+    case 1:
+      dynoTest();
+      break;
+    case 2:
+      tempTest();
+      break;
   }
 }
 

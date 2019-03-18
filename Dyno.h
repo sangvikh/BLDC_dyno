@@ -34,8 +34,7 @@ private:
   int  poleCheck();
   
   //Class variables
-  bool dynoTest_ = 0;  //High when dyno run is active
-  bool tempTest_ = 0;  //High when temperature test is active  
+  bool testState_ = 0;  //0 - Idle, 1 - Dyno test, 2 Temperature test, 3 - Pole test
   unsigned long startTime_ = 0; //Variable to store time when test was started
 };
 

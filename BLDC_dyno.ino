@@ -152,6 +152,7 @@ void loop()
     Can0.write(msg);
 
     //Write debug data to serial
-    Serial.println(dutyActual);
+    //Serial.println(torque,4);
+    Serial.print(LoadCell.getScaledValue(0),4), Serial.print(", "); Serial.println(LoadCell.getScaledValue(1),4);
   }
 }

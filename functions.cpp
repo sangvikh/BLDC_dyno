@@ -5,11 +5,11 @@
 
 void ramp(float in, float rampTime, float range, float& out)
 {
-  if (in > out) {out += cycleTime/rampTime*range;}
-  else if (in < out)
+  if (out < in) {out += cycleTime/rampTime*range;}
+  else if (out > in)
   {
     out -= cycleTime/rampTime*range;
-    if (in > out) {out = in;}         //This line checks if the setpoint has been overshot
+    if (out < in) {out = in;}         //This line checks if the setpoint has been overshot
   }
 }
 
