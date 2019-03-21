@@ -1,18 +1,34 @@
 #include "Dyno.h"
+#include "config.h"
 #include "variables.h"
 #include "functions.h"
 #include "Logger.h"
 #include "arduino.h"
+#include "VescUart.h"
 
 Logger Logger;
+VescUart Brake;   //Brake VESC
+VescUart DUT;     //Device under test VESC
 
 Dyno::Dyno(){}
 Dyno::~Dyno(){}
+
+void Dyno::begin()
+{
+  //Setup serial to VESC's
+  Serial1.begin(serialBaud);
+  Serial2.begin(serialBaud);
+
+  //Define which serial ports to use for VESC's
+  Brake.setSerialPort(&Serial1);
+  DUT.setSerialPort(&Serial2);
+}
 
 void Dyno::startDynoTest()
 {
   if (testState_ == 0)
   {
+    startTime_ = millis();
     testState_ = 1;
     Logger.setFileName("dyno.txt");
     Logger.begin();
@@ -40,12 +56,41 @@ void Dyno::startTempTest()
 {
   if (testState_ == 0)
   {
+    startTime_ = millis();
     testState_ = 2;
   }
 }
 
+void Dyno::startPoleCheck()
+{
+  if (testState_ == 0)
+  {
+    startTime_ = millis();
+    testState_ = 3;
+  }
+}
+
+int Dyno::getPolePairs()
+{
+  return polePairs_;
+}
+
 void Dyno::update()
 {
+  //Get data from VESC's
+  Brake.getVescValues();
+  DUT.getVescValues();
+  rpmActual = Brake.data.rpm/7;
+  motorCurrent = Brake.data.avgMotorCurrent;
+  DUTmotorCurrent = DUT.data.avgMotorCurrent;
+  dutyActual = Brake.data.dutyCycleNow;
+  DUTdutyActual = DUT.data.dutyCycleNow;
+  inputCurrent = Brake.data.avgInputCurrent;
+  DUTinputCurrent = DUT.data.avgInputCurrent;
+  inputVoltage = Brake.data.inpVoltage;
+  DUTinputVoltage = DUT.data.inpVoltage;
+    
+  //Update the current running program
   switch(testState_)
   {
     case 0:
@@ -57,6 +102,33 @@ void Dyno::update()
     case 2:
       tempTest();
       break;
+  }
+
+  //Update outputs
+  //Set VESC ouputs, set to 0 to disable writing.
+  if (rpm > 0)
+  {      
+    Brake.setRPM(rpm*7);
+  }
+  if (current > 0)
+  {      
+    Brake.setCurrent(current);
+  }
+  if (currentBrake > 0)
+  {      
+    Brake.setBrakeCurrent(currentBrake);
+  }
+  if (DUTrpm > 0)
+  {      
+    DUT.setRPM(DUTrpm*7);
+  }
+  if (DUTcurrent > 0)
+  {      
+    DUT.setCurrent(DUTcurrent);
+  }
+  if (DUTduty > 0)
+  {      
+    DUT.setDuty(DUTduty);
   }
 }
 
@@ -83,14 +155,12 @@ void Dyno::tempTest()
   //DUT - ramp current
 }
 
-int Dyno::poleCheck()
+void Dyno::poleCheck()
 {
-  startTime_ = millis();
-  rpmSet = 1000.0;
-  int poleCount = 0;
-  if (millis() - startTime_ >= 500)
+  while (millis() - startTime_ < 1000)
   {
-    int poleCount = (int)round(rpmActual/rpm);
+    Brake.setRPM(10000);
   }
-  return poleCount;
+  polePairs_ = (int)round(rpmActual/rpm);
+  stopTest();
 }

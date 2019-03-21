@@ -23,7 +23,10 @@ public:
   void startTempTest();
 
   //Finds the number of pole pairs on the DUT
-  int poleCheck();
+  void startPoleCheck();
+
+  //Returns the pole pairs found from the poleCheck
+  int getPolePairs();
 
   //This function runs every loop and keeps track of the output/states
   void update();
@@ -31,10 +34,12 @@ public:
 private:
   void dynoTest();
   void tempTest();
+  void poleCheck();
   
   //Class variables
   bool testState_ = 0;  //0 - Idle, 1 - Dyno test, 2 Temperature test, 3 - Pole test
   unsigned long startTime_ = 0; //Variable to store time when test was started
+  int polePairs_ = 0;   //Number of pole pairs
 };
 
 #endif

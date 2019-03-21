@@ -5,7 +5,6 @@
 
 //Includes
 #include <FlexCAN.h>
-#include "VescUart.h"
 #include "LoadCell.h"
 #include "CycleTime.h"
 #include "Dyno.h"
@@ -15,8 +14,6 @@
 #include "variables.h"
 
 //Initiate classes
-VescUart Brake;   //Brake VESC
-VescUart DUT;     //Device under test VESC
 CycleTime Main(10);  //Creates a check for a fixed cycle time
 LoadCell LoadCell;   //Initiate scales
 Dyno Dyno;           //Dyno program sequence
@@ -30,13 +27,8 @@ void setup()
   //Setup debug serial
   Serial.begin(serialBaud);
 
-  //Setup serial to VESC's
-  Serial1.begin(serialBaud);
-  Serial2.begin(serialBaud);
-
-  //Define which serial ports to use for VESC's
-  Brake.setSerialPort(&Serial1);
-  DUT.setSerialPort(&Serial2);
+  //Begin Dyno program
+  Dyno.begin();
 
   //Begin CAN communication
   Can0.begin(CANbaud);
@@ -55,20 +47,6 @@ void loop()
   {
     //Gets the cycle time, stores it in a global variable
     cycleTime = Main.getCycleTime();
-    
-    //Get data from VESC's
-    Brake.getVescValues();
-    DUT.getVescValues();
-    rpmActual = Brake.data.rpm/poleCount;
-    torque = LoadCell.getTorque(0,1);
-    motorCurrent = Brake.data.avgMotorCurrent;
-    DUTmotorCurrent = DUT.data.avgMotorCurrent;
-    dutyActual = Brake.data.dutyCycleNow;
-    DUTdutyActual = DUT.data.dutyCycleNow;
-    inputCurrent = Brake.data.avgInputCurrent;
-    DUTinputCurrent = DUT.data.avgInputCurrent;
-    inputVoltage = Brake.data.inpVoltage;
-    DUTinputVoltage = DUT.data.inpVoltage;
     
     //Update load cells
     LoadCell.refresh();
@@ -114,41 +92,16 @@ void loop()
           DUTrpm = 0.0;
           break;
         case 0x111:
-          int polePairs = Dyno.poleCheck();
+          Dyno.startPoleCheck();
           msg.id = 0x112;
-          msg.buf[0] = polePairs;
+          msg.buf[0] = Dyno.getPolePairs();
           Can0.write(msg);
       }
     }
 
     //Update status of program sequence
     Dyno.update();
-    
-    //Set VESC ouputs, set to 0 to disable writing.
-    if (rpm > 0)
-    {      
-      Brake.setRPM(rpm*poleCount);
-    }
-    if (current > 0)
-    {      
-      Brake.setCurrent(current);
-    }
-    if (currentBrake > 0)
-    {      
-      Brake.setBrakeCurrent(currentBrake);
-    }
-    if (DUTrpm > 0)
-    {      
-      DUT.setRPM(DUTrpm*poleCount);
-    }
-    if (DUTcurrent > 0)
-    {      
-      DUT.setCurrent(DUTcurrent);
-    }
-    if (DUTduty > 0)
-    {      
-      DUT.setDuty(DUTduty);
-    }
+    torque = LoadCell.getTorque(0,1);
 
     //Test CAN, also useful for verifying cycle time in PCAN
     msg.ext = 0;
@@ -163,6 +116,6 @@ void loop()
     //Write debug data to serial
     //Serial.println(torque,4);
     //Serial.print(LoadCell.getScaledValue(0),4), Serial.print(", "); Serial.println(LoadCell.getScaledValue(1),4);
-    Serial.print("Temperature = "); Serial.println(TS0.temperature(RNOMINAL, RREF));
+    //Serial.print("Temperature = "); Serial.println(TS0.temperature(RNOMINAL, RREF));
   }
 }
