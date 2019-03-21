@@ -123,7 +123,7 @@ void loop()
     //Write debug data to serial
     //Serial.println(torque,4);
     //Serial.print(LoadCell.getScaledValue(0),4), Serial.print(", "); Serial.println(LoadCell.getScaledValue(1),4);
-    Serial.print("Temperature = "); Serial.println(DUTtemp);
-    Serial.print("Current = "); Serial.println(DUTmotorCurrent);
+    //Serial.print("Temperature = "); Serial.println(DUTtemp);
+    //Serial.print("Current = "); Serial.println(DUTmotorCurrent);
   }
 }

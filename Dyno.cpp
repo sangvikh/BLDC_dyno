@@ -60,7 +60,7 @@ void Dyno::startTempTest()
     startTime_ = millis();
     testState_ = 2;
     DUTcurrentSet = 100.0;
-    rpm = 200.0;
+    currentBrake = 100.0;
   }
 }
 
@@ -128,10 +128,6 @@ void Dyno::update()
   {      
     DUT.setRPM(DUTrpm*7);
   }
-  if (DUTcurrent > 0)
-  {      
-    DUT.setCurrent(DUTcurrent);
-  }
   if (DUTduty > 0)
   {      
     DUT.setDuty(DUTduty);
@@ -159,9 +155,9 @@ void Dyno::tempTest()
   {
     case 0:
     {
-      int rampTime = 600.0;    //Ramp time in seconds
-      DUTcurrent = 60.0/sqrt(rampTime)*sqrt((millis() - startTime_)/1000.0);
-      if (DUTtemp > 50.0)
+      ramp(DUTcurrentSet, 600, 100, DUTcurrent);
+      DUT.setCurrent(DUTcurrent + (maxTemp_-DUTtemp));
+      if (DUTtemp > maxTemp_)
       {
         state_ = 1;
         DUTnominalCurrent_ = DUTmotorCurrent;
@@ -171,9 +167,10 @@ void Dyno::tempTest()
     }
     case 1:
     {
-      DUTcurrent = DUTnominalCurrent_;
-      if (millis() - startTime_ >= 60000)
+      DUT.setCurrent(DUTnominalCurrent_ + 5*(maxTemp_-DUTtemp));
+      if (millis() - startTime_ >= 300000)
       {
+        DUTnominalCurrent_ = DUTmotorCurrent;
         stopTest();
       }
       break;
