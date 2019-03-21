@@ -9,6 +9,7 @@
 #include "LoadCell.h"
 #include "CycleTime.h"
 #include "Dyno.h"
+#include <Adafruit_MAX31865.h>
 #include "config.h"
 #include "functions.h"
 #include "variables.h"
@@ -19,6 +20,7 @@ VescUart DUT;     //Device under test VESC
 CycleTime Main(10);  //Creates a check for a fixed cycle time
 LoadCell LoadCell;   //Initiate scales
 Dyno Dyno;           //Dyno program sequence
+Adafruit_MAX31865 TS0(17);
 
 //CAN message
 static CAN_message_t msg;
@@ -41,6 +43,9 @@ void setup()
 
   //Load loadcell calibration values
   LoadCell.loadCalibration();
+
+  //Start temperature sensors
+  TS0.begin(MAX31865_2WIRE);
 }
 
 
@@ -65,7 +70,6 @@ void loop()
     inputVoltage = Brake.data.inpVoltage;
     DUTinputVoltage = DUT.data.inpVoltage;
     
-
     //Update load cells
     LoadCell.refresh();
 
@@ -109,6 +113,11 @@ void loop()
         case 0x102:
           DUTrpm = 0.0;
           break;
+        case 0x111:
+          int polePairs = Dyno.poleCheck();
+          msg.id = 0x112;
+          msg.buf[0] = polePairs;
+          Can0.write(msg);
       }
     }
 
@@ -153,6 +162,7 @@ void loop()
 
     //Write debug data to serial
     //Serial.println(torque,4);
-    Serial.print(LoadCell.getScaledValue(0),4), Serial.print(", "); Serial.println(LoadCell.getScaledValue(1),4);
+    //Serial.print(LoadCell.getScaledValue(0),4), Serial.print(", "); Serial.println(LoadCell.getScaledValue(1),4);
+    Serial.print("Temperature = "); Serial.println(TS0.temperature(RNOMINAL, RREF));
   }
 }
