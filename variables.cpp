@@ -24,3 +24,4 @@ float DUTduty = 0;
 float DUTdutyActual = 0;
 float cycleTime = 0;
 float torque = 0;
+float DUTtemp = 0;

@@ -41,6 +41,7 @@ void Dyno::stopTest()
 {
     //Enda the dyno test, sets all values to 0
     testState_ = 0;
+    state_ = 0;
     rpmSet = 0;
     rpm = 0;
     current = 0;
@@ -58,6 +59,8 @@ void Dyno::startTempTest()
   {
     startTime_ = millis();
     testState_ = 2;
+    DUTcurrentSet = 100.0;
+    rpm = 200.0;
   }
 }
 
@@ -101,6 +104,9 @@ void Dyno::update()
       break;
     case 2:
       tempTest();
+      break;
+    case 3:
+      poleCheck();
       break;
   }
 
@@ -149,18 +155,39 @@ void Dyno::dynoTest()
 
 void Dyno::tempTest()
 {
-  startTime_ = millis();
-  //Start logging
-  //Brake - max current
-  //DUT - ramp current
+  switch(state_)
+  {
+    case 0:
+    {
+      int rampTime = 600.0;    //Ramp time in seconds
+      DUTcurrent = 60.0/sqrt(rampTime)*sqrt((millis() - startTime_)/1000.0);
+      if (DUTtemp > 50.0)
+      {
+        state_ = 1;
+        DUTnominalCurrent_ = DUTmotorCurrent;
+        startTime_ = millis();
+      }
+      break;
+    }
+    case 1:
+    {
+      DUTcurrent = DUTnominalCurrent_;
+      if (millis() - startTime_ >= 60000)
+      {
+        stopTest();
+      }
+      break;
+    }
+  }
 }
 
 void Dyno::poleCheck()
 {
-  while (millis() - startTime_ < 1000)
+  DUTrpmSet = 10000;
+  Brake.setRPM(DUTrpmSet);
+  if (millis() - startTime_ >= 1000)
   {
-    Brake.setRPM(10000);
+    polePairs_ = (int)round(DUTrpmSet/rpmActual);
+    stopTest();
   }
-  polePairs_ = (int)round(rpmActual/rpm);
-  stopTest();
 }

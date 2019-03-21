@@ -25,5 +25,6 @@ extern float DUTduty;
 extern float DUTdutyActual;
 extern float cycleTime;
 extern float torque;
+extern float DUTtemp;
 
 #endif

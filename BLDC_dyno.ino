@@ -94,14 +94,21 @@ void loop()
         case 0x111:
           Dyno.startPoleCheck();
           msg.id = 0x112;
+          msg.len = 1;
           msg.buf[0] = Dyno.getPolePairs();
           Can0.write(msg);
+          break;
+          Serial.print(Dyno.getPolePairs());
+        case 0x112:
+          Dyno.startTempTest();
+          break;
       }
     }
 
     //Update status of program sequence
     Dyno.update();
     torque = LoadCell.getTorque(0,1);
+    DUTtemp = TS0.temperature(RNOMINAL, RREF);
 
     //Test CAN, also useful for verifying cycle time in PCAN
     msg.ext = 0;
@@ -116,6 +123,7 @@ void loop()
     //Write debug data to serial
     //Serial.println(torque,4);
     //Serial.print(LoadCell.getScaledValue(0),4), Serial.print(", "); Serial.println(LoadCell.getScaledValue(1),4);
-    //Serial.print("Temperature = "); Serial.println(TS0.temperature(RNOMINAL, RREF));
+    Serial.print("Temperature = "); Serial.println(DUTtemp);
+    Serial.print("Current = "); Serial.println(DUTmotorCurrent);
   }
 }
