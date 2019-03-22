@@ -5,10 +5,12 @@
 #include "Logger.h"
 #include "arduino.h"
 #include "VescUart.h"
+#include "PID.h"
 
 Logger Logger;
 VescUart Brake;   //Brake VESC
 VescUart DUT;     //Device under test VESC
+PID PID;
 
 Dyno::Dyno(){}
 Dyno::~Dyno(){}
@@ -59,8 +61,12 @@ void Dyno::startTempTest()
   {
     startTime_ = millis();
     testState_ = 2;
+    Logger.setFileName("temp.txt");
+    Logger.begin();
     DUTcurrentSet = 100.0;
     currentBrake = 100.0;
+    PID.setPID(5.0, 0.01, 0);
+    PID.reset();
   }
 }
 
@@ -108,6 +114,13 @@ void Dyno::update()
     case 3:
       poleCheck();
       break;
+    case 4:
+      PID.pid(1000.0, rpmActual, DUTcurrent);
+      DUT.setCurrent(DUTcurrent);
+      Serial.println(rpmActual);
+      Serial.println(PID.getIntegral());
+      Serial.println(PID.getdt(),4);
+      Serial.println("--------------------");
   }
 
   //Update outputs
@@ -137,7 +150,7 @@ void Dyno::update()
 void Dyno::dynoTest()
 {
   startTime_ = millis();
-  float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual};
+  float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual, DUTtemp};
   unsigned int length = sizeof(logData)/sizeof(float);
   Logger.log(logData, length);
   ramp(rpmSet, 1, 100, rpm);
@@ -151,6 +164,9 @@ void Dyno::dynoTest()
 
 void Dyno::tempTest()
 {
+  float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual, DUTtemp};
+  unsigned int length = sizeof(logData)/sizeof(float);
+  Logger.log(logData, length);
   switch(state_)
   {
     case 0:
@@ -167,8 +183,9 @@ void Dyno::tempTest()
     }
     case 1:
     {
-      DUT.setCurrent(DUTnominalCurrent_ + 5*(maxTemp_-DUTtemp));
-      if (millis() - startTime_ >= 300000)
+      PID.pid(maxTemp_, DUTtemp, DUTcurrent);
+      DUT.setCurrent(DUTnominalCurrent_ + DUTcurrent);
+      if (millis() - startTime_ >= 600000)
       {
         DUTnominalCurrent_ = DUTmotorCurrent;
         stopTest();
@@ -187,4 +204,10 @@ void Dyno::poleCheck()
     polePairs_ = (int)round(DUTrpmSet/rpmActual);
     stopTest();
   }
+}
+
+void Dyno::pidRPM()
+{
+  PID.setPID(0.01, 0.01, 0);
+  testState_ = 4;
 }
