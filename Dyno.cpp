@@ -65,7 +65,7 @@ void Dyno::startTempTest()
     Logger.begin();
     DUTcurrentSet = 100.0;
     currentBrake = 100.0;
-    PID.setPID(5.0, 0.01, 0);
+    PID.setPID(5.0, 0.05, 0);
     PID.reset();
   }
 }
@@ -164,15 +164,12 @@ void Dyno::dynoTest()
 
 void Dyno::tempTest()
 {
-  float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual, DUTtemp};
-  unsigned int length = sizeof(logData)/sizeof(float);
-  Logger.log(logData, length);
   switch(state_)
   {
     case 0:
     {
-      ramp(DUTcurrentSet, 600, 100, DUTcurrent);
-      DUT.setCurrent(DUTcurrent + (maxTemp_-DUTtemp));
+      ramp(DUTcurrentSet, 600, maxCurrent_, DUTcurrent);
+      DUT.setCurrent(DUTcurrent + (maxTemp_-DUTtemp)*100.0/maxCurrent_);
       if (DUTtemp > maxTemp_)
       {
         state_ = 1;
@@ -183,9 +180,12 @@ void Dyno::tempTest()
     }
     case 1:
     {
+      float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual, DUTtemp};
+      unsigned int length = sizeof(logData)/sizeof(float);
+      Logger.log(logData, length);
       PID.pid(maxTemp_, DUTtemp, DUTcurrent);
       DUT.setCurrent(DUTnominalCurrent_ + DUTcurrent);
-      if (millis() - startTime_ >= 600000)
+      if (millis() - startTime_ >= 300000)
       {
         DUTnominalCurrent_ = DUTmotorCurrent;
         stopTest();
