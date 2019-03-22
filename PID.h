@@ -26,7 +26,8 @@ public:
   void reset();
 
 private:
-  void antiWindup();
+  //Returns 0 if output is saturated, ki_ else.
+  float antiWindup();
   
   float kp_ = 1;
   float ki_ = 0;
@@ -37,6 +38,8 @@ private:
   float derivative_ = 0;
   unsigned long lastTime_ = 0;
   float lastPv_ = 0;
+  float control_ = 0;   //temporary control signal
+  float out_ = 0;       //temporary output signal (used in anti windup)
 };
 
 #endif

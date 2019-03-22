@@ -12,16 +12,15 @@ void PID::pid(float sp, float pv, float &out)
 
   //Calculate error, integral and derivative
   error_ = sp - pv;
-  integral_ += error_*dt_;
-  derivative_ = lastPv_ - pv;
+  integral_ += error_*dt_*antiWindup();
+  derivative_ = (lastPv_ - pv)/dt;
   lastTime_ = micros();
   lastPv_ = pv;
 
-  //Anti windup
-  antiWindup();
-
   //Update output
-  out = error_*kp_ + integral_*ki_ + derivative_*kd_;
+  control_ = error_*kp_ + integral_ + derivative_*kd_;
+  out_ = constrain(control_, 0.0, 50.0);
+  out = out_;
 }
 
 void PID::setPID(float kp, float ki, float kd)
@@ -51,14 +50,14 @@ void PID::reset()
   integral_ = 0;
 }
 
-void PID::antiWindup()
+float PID::antiWindup()
 {
-  if (integral_ > 1000.0)
+  if (control_ != out_)
   {
-    integral_ = 1000.0;
+    return 0;
   }
-  if (integral_ < -1000.0)
+  else
   {
-    integral_ = -1000.0;
+    return ki_;
   }
 }
