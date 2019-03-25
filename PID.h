@@ -8,10 +8,13 @@ public:
   ~PID();
 
   //Updates PID regulator
-  void pid(float sp, float pv, float &out);
+  void pid(float sp, float pv, float out);
 
   //Sets PID parameters
   void setPID(float kp = 1, float ki = 0, float kd = 0);
+
+  //Set output limits
+  void setLimits(float min, float max);
 
   //Returns the error
   float getError();
@@ -40,6 +43,8 @@ private:
   float lastPv_ = 0;
   float control_ = 0;   //temporary control signal
   float out_ = 0;       //temporary output signal (used in anti windup)
+  float max_ = 100.0;
+  float min_ = 0.0;
 };
 
 #endif

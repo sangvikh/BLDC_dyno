@@ -5,7 +5,7 @@
 PID::PID(){};
 PID::~PID(){};
 
-void PID::pid(float sp, float pv, float &out)
+void PID::pid(float sp, float pv, float out)
 {
   //Calculate cycle time
   dt_ = (float)(micros()-lastTime_)/1000000.0;
@@ -13,13 +13,13 @@ void PID::pid(float sp, float pv, float &out)
   //Calculate error, integral and derivative
   error_ = sp - pv;
   integral_ += error_*dt_*antiWindup();
-  derivative_ = (lastPv_ - pv)/dt;
+  derivative_ = (lastPv_ - pv)/dt_;
   lastTime_ = micros();
   lastPv_ = pv;
 
   //Update output
   control_ = error_*kp_ + integral_ + derivative_*kd_;
-  out_ = constrain(control_, 0.0, 50.0);
+  out_ = constrain(control_, min_, max_);
   out = out_;
 }
 
@@ -28,6 +28,12 @@ void PID::setPID(float kp, float ki, float kd)
   kp_ = kp;
   ki_ = ki;
   kd_ = kd;
+}
+
+void PID::setLimits(float min, float max)
+{
+  min_ = min;
+  max_ = max;
 }
 
 float PID::getError()
