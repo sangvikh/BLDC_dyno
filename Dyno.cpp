@@ -41,7 +41,7 @@ void Dyno::startDynoTest()
 
 void Dyno::stopTest()
 {
-    //Enda the dyno test, sets all values to 0
+    //Ends the dyno test, sets all values to 0
     testState_ = 0;
     rpmSet = 0;
     rpm = 0;
@@ -60,10 +60,20 @@ void Dyno::startTempTest()
   {
     startTime_ = millis();
     testState_ = 2;
+
+    //Zero average
+    sumMeasurements_ = 0;
+    numberMeasurements_ = 0;
+
+    //Start logger
     Logger.setFileName("temp.txt");
     Logger.begin();
+
+    //Max current
     maxCurrent_ = 50.0;
     currentBrake = 100.0;
+
+    //PID settings
     PID.reset();
     PID.setPID(maxCurrent_/10.0, maxCurrent_/1000.0, 0);
     PID.setLimits(0.0, maxCurrent_);
@@ -164,16 +174,42 @@ void Dyno::dynoTest()
 
 void Dyno::tempTest()
 {
-    float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual, DUTtemp};
-    unsigned int length = sizeof(logData)/sizeof(float);
-    Logger.log(logData, length);
-    PID.pid(maxTemp_, DUTtemp, DUTcurrent);
-    DUT.setCurrent(DUTnominalCurrent_ + DUTcurrent);
-    if (millis() - startTime_ >= 600000)
-    {
-      DUTnominalCurrent_ = DUTmotorCurrent;
-      stopTest();
-    }
+  //Start logging
+  float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual, DUTtemp};
+  unsigned int length = sizeof(logData)/sizeof(float);
+  Logger.log(logData, length);
+
+  //PID control current
+  PID.pid(maxTemp_, DUTtemp, DUTcurrent);
+  DUT.setCurrent(DUTcurrent);
+
+  //Average current the last minute is nominal current
+  if (millis() - startTime_ >= 600000-60000)
+  {
+    sumMeasurements_ += DUTtemp;
+    numberMeasurements_++;
+  }
+
+  //Run test for 10 minutes
+  if (millis() - startTime_ >= 600000)
+  {
+    Serial.println("Temp check complete");
+    DUTnominalCurrent_ = sumMeasurements_/numberMeasurements_;
+    Serial.print("Nominal current: "); Serial.println(DUTnominalCurrent_);
+    stopTest();
+  }
+
+  //Stop if overtemp or reading lost
+  if (DUTtemp > 1.2*maxTemp_)
+  {
+    Serial.println("OVERTEMP!!!");
+    stopTest();
+  }
+  else if (DUTtemp < 0.0)
+  {
+    Serial.println("Temperature data lost!");
+    stopTest();
+  }
 }
 
 void Dyno::poleCheck()
@@ -183,6 +219,7 @@ void Dyno::poleCheck()
   if (millis() - startTime_ >= 2000)
   {
     polePairs_ = (int)round(DUTrpmSet/rpmActual);
+    Serial.print("DUT pole pairs: "); Serial.println(polePairs_);
     stopTest();
   }
 }

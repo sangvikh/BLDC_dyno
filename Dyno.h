@@ -16,7 +16,7 @@ public:
   //Starts a dyno run
   void startDynoTest();
 
-  //Stops the current dyno run
+  //Stops the current test
   void stopTest();
 
   //Starts a temperature check, finds maximum nominal current
@@ -31,6 +31,7 @@ public:
   //This function runs every loop and keeps track of the output/states
   void update();
 
+  //Controls RPM using current and PID
   void pidRPM();
   
 private:
@@ -43,8 +44,10 @@ private:
   unsigned long startTime_ = 0; //Variable to store time when test was started
   int polePairs_ = 0;   //Number of pole pairs
   float maxTemp_ = 70.0;       //Maximum temperature for finding nominal current
-  float maxCurrent_ = 50.0;
+  float maxCurrent_ = 50.0;       //Maximum motor current (About 2-3x nominal current)
   float DUTnominalCurrent_ = 0;     //Nominal current found in the currentCheck
+  float sumMeasurements_ = 0;    //Sum for averaging
+  unsigned int numberMeasurements_ = 0;   //Number of measurements for averaging
 };
 
 #endif
