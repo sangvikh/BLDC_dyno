@@ -8,7 +8,7 @@ public:
   ~PID();
 
   //Updates PID regulator
-  void pid(float sp, float pv, float out);
+  void pid(float sp, float pv, float &out);
 
   //Sets PID parameters
   void setPID(float kp = 1, float ki = 0, float kd = 0);

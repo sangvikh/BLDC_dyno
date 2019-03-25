@@ -40,11 +40,10 @@ private:
   
   //Class variables
   int testState_ = 0;  //0 - Idle, 1 - Dyno test, 2 Temperature test, 3 - Pole test
-  int state_ = 0;     //State used in each program, for doing sequential stuff
   unsigned long startTime_ = 0; //Variable to store time when test was started
   int polePairs_ = 0;   //Number of pole pairs
   float maxTemp_ = 70.0;       //Maximum temperature for finding nominal current
-  float maxCurrent_ = 100.0;
+  float maxCurrent_ = 50.0;
   float DUTnominalCurrent_ = 0;     //Nominal current found in the currentCheck
 };
 

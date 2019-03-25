@@ -5,7 +5,7 @@
 PID::PID(){};
 PID::~PID(){};
 
-void PID::pid(float sp, float pv, float out)
+void PID::pid(float sp, float pv, float &out)
 {
   //Calculate cycle time
   dt_ = (float)(micros()-lastTime_)/1000000.0;
