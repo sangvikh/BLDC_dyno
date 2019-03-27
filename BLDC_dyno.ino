@@ -83,8 +83,12 @@ void loop()
           LoadCell.saveCalibration();
           break;
         case 0x06:
-          LoadCell.setCalibrationMass((float)msg.buf[0]/10);
+          {
+          unsigned int mass = (msg.buf[0]<<8)+msg.buf[1];
+          LoadCell.setCalibrationMass((float)mass/1000.0);
+          Serial.println(mass/1000, 3);
           break;
+          }
         case 0x101:
           DUTrpm = (float)(msg.buf[0]*100);
           break;
