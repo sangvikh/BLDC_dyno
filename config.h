@@ -7,5 +7,6 @@
 #define CSpin 14
 #define RREF 430.0
 #define RNOMINAL 100.0
+#define brakePoles 7
 
 #endif

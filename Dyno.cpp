@@ -26,23 +26,11 @@ void Dyno::begin()
   DUT.setSerialPort(&Serial2);
 }
 
-void Dyno::startDynoTest()
-{
-  if (testState_ == 0)
-  {
-    startTime_ = millis();
-    testState_ = 1;
-    Logger.setFileName("dyno.txt");
-    Logger.begin();
-    rpmSet = 10000.0;
-    DUTduty = 0.25;
-  }
-}
-
 void Dyno::stopTest()
 {
     //Ends the dyno test, sets all values to 0
-    testState_ = 0;
+    testState_ = IDLE;
+    state_++;       //For testEverytning();
     rpmSet = 0;
     rpm = 0;
     current = 0;
@@ -54,12 +42,38 @@ void Dyno::stopTest()
     Logger.end();
 }
 
-void Dyno::startTempTest()
+void Dyno::emgStop()
 {
-  if (testState_ == 0)
+  stopTest();
+  testEverything_ = 0;
+}
+
+void Dyno::testEverything()
+{
+  testEverything_ = 1;
+  state_ = 0;
+}
+
+void Dyno::startDynoTest()
+{
+  if (testState_ == IDLE)
   {
     startTime_ = millis();
-    testState_ = 2;
+    testState_ = DYNOTEST;
+    state_ = 0;
+    Logger.setFileName("dyno.txt");
+    Logger.begin();
+    rpmSet = 10000.0;
+    DUTduty = 0.25;
+  }
+}
+
+void Dyno::startTempTest()
+{
+  if (testState_ == IDLE)
+  {
+    startTime_ = millis();
+    testState_ = TEMPTEST;
 
     //Zero average
     sumMeasurements_ = 0;
@@ -82,10 +96,10 @@ void Dyno::startTempTest()
 
 void Dyno::startPoleCheck()
 {
-  if (testState_ == 0)
+  if (testState_ == IDLE)
   {
     startTime_ = millis();
-    testState_ = 3;
+    testState_ = POLECHECK;
   }
 }
 
@@ -99,7 +113,7 @@ void Dyno::update()
   //Get data from VESC's
   Brake.getVescValues();
   DUT.getVescValues();
-  rpmActual = Brake.data.rpm/7;
+  rpmActual = Brake.data.rpm/brakePoles;
   motorCurrent = Brake.data.avgMotorCurrent;
   DUTmotorCurrent = DUT.data.avgMotorCurrent;
   dutyActual = Brake.data.dutyCycleNow;
@@ -112,19 +126,19 @@ void Dyno::update()
   //Update the current running program
   switch(testState_)
   {
-    case 0:
+    case IDLE:
       //Do nothing
       break;
-    case 1:
+    case DYNOTEST:
       dynoTest();
       break;
-    case 2:
+    case TEMPTEST:
       tempTest();
       break;
-    case 3:
+    case POLECHECK:
       poleCheck();
       break;
-    case 4:
+    case PIDRPM:
       PID.pid(1000.0, rpmActual, DUTcurrent);
       DUT.setCurrent(DUTcurrent);
       Serial.println(rpmActual);
@@ -133,11 +147,17 @@ void Dyno::update()
       Serial.println("--------------------");
   }
 
+  //Running if checkEverything();
+  if (testEverything_ == 1)
+  {
+    everything();
+  }
+
   //Update outputs
   //Set VESC ouputs, set to 0 to disable writing.
   if (rpm > 0)
   {      
-    Brake.setRPM(rpm*7);
+    Brake.setRPM(rpm*brakePoles);
   }
   if (current > 0)
   {      
@@ -149,7 +169,7 @@ void Dyno::update()
   }
   if (DUTrpm > 0)
   {      
-    DUT.setRPM(DUTrpm*7);
+    DUT.setRPM(DUTrpm*polePairs_);
   }
   if (DUTduty > 0)
   {      
@@ -169,6 +189,34 @@ void Dyno::dynoTest()
   if (rpm == rpmSet || DUTinputCurrent < 0.0 || DUTdutyActual >= 0.95 || dutyActual >= 0.95)
   {
     stopTest();
+  }
+}
+
+void Dyno::everything()
+{
+  switch(state_)
+  {
+    default:
+      break;
+    case 0:
+      delay(500);
+      startPoleCheck();
+      state_++;
+      break;
+    case 2:
+      delay(500);
+      startDynoTest();
+      state_++;
+      break;
+    case 4:
+      delay(500);
+      startTempTest();
+      state_++;
+      break;
+    case 6:
+      testEverything_ = 0;
+      stopTest();
+      break;
   }
 }
 
@@ -200,7 +248,7 @@ void Dyno::tempTest()
   }
 
   //Stop if overtemp or reading lost
-  if (DUTtemp > 1.2*maxTemp_)
+  if (DUTtemp > 1.1*maxTemp_)
   {
     Serial.println("OVERTEMP!!!");
     stopTest();
@@ -227,5 +275,5 @@ void Dyno::poleCheck()
 void Dyno::pidRPM()
 {
   PID.setPID(0.01, 0.01, 0);
-  testState_ = 4;
+  testState_ = PIDRPM;
 }

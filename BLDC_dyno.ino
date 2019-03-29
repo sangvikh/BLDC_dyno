@@ -17,7 +17,8 @@
 CycleTime Main(10);  //Creates a check for a fixed cycle time
 LoadCell LoadCell;   //Initiate scales
 Dyno Dyno;           //Dyno program sequence
-Adafruit_MAX31865 TS0(17);
+Adafruit_MAX31865 TS0(17);  //Temperature sensor
+Adafruit_MAX31865 TS1(18);  //Temperature sensor
 
 //CAN message
 static CAN_message_t msg;
@@ -58,18 +59,20 @@ void loop()
       switch(msg.id)
       {
         case 0x01:
-          rpm = (float)(msg.buf[0]*100);
+          DUTrpm = (float)(msg.buf[0]*100);
           break;
         case 0x02:
           rpm = 0.0;
+          DUTrpm = 0.0;
           current = 0.0;
+          DUTcurrent = 0.0;
           break;
         case 0x99:
           LoadCell.tare();
           Dyno.startDynoTest();
           break;
         case 0x100:
-          Dyno.stopTest();
+          Dyno.emgStop();
         case 0x10:
           LoadCell.zero(msg.buf[0]);
           break;
@@ -83,12 +86,12 @@ void loop()
           LoadCell.saveCalibration();
           break;
         case 0x06:
-          {
+        {
           unsigned int mass = (msg.buf[0]<<8)+msg.buf[1];
           LoadCell.setCalibrationMass((float)mass/1000.0);
           Serial.println(mass/1000, 3);
           break;
-          }
+        }
         case 0x101:
           DUTrpm = (float)(msg.buf[0]*100);
           break;
@@ -108,6 +111,9 @@ void loop()
           break;
         case 0x113:
           Dyno.pidRPM();
+          break;
+        case 0x114:
+          Dyno.testEverything();
           break;
       }
     }
