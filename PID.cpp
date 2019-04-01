@@ -2,8 +2,8 @@
 #include "variables.h"
 #include <Arduino.h>
 
-PID::PID(){};
-PID::~PID(){};
+PID::PID(){}
+PID::~PID(){}
 
 void PID::pid(float sp, float pv, float &out)
 {
