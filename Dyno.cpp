@@ -204,7 +204,8 @@ void Dyno::everything()
 
 void Dyno::pidRPM()
 {
-  PID.setPID(0.01, 0.01, 0.001);
+  PID.setPID(0.03, 0.12, 0.001875);
+  PID.reset();
   PID.setFilter(10);
   testState_ = PIDRPM;
 }

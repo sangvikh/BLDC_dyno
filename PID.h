@@ -32,10 +32,11 @@ public:
   void reset();
 
 private:
-  //Returns 0 if output is saturated, ki_ else.
+  //Private member functions
   float antiWindup();
   float filter(float in);
-  
+
+  //Member variables
   float kp_ = 1;
   float ki_ = 0;
   float kd_ = 0;
@@ -50,7 +51,7 @@ private:
   float out_ = 0;       //temporary output signal (used in anti windup)
   float max_ = 100.0;
   float min_ = 0.0;
-  int filterLength_ = 1;
+  int filterLength_ = 10;
   float filterArray_[10] = {0};
 };
 

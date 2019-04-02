@@ -61,6 +61,7 @@ float PID::getdt()
 void PID::reset()
 {
   integral_ = 0;
+  lastTime_ = micros();
 }
 
 float PID::antiWindup()
@@ -81,7 +82,7 @@ float PID::filter(float in)
   filterArray_[0] = in;
 
   //Shift old values one place
-  for (int i = filterLength_ - 1; i <= 0; i--)
+  for (int i = filterLength_ - 1; i <= 1; i--)
   {
     filterArray_[i] = filterArray_[i-1];
   }
