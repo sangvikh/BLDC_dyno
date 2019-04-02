@@ -13,9 +13,9 @@ void PID::pid(float sp, float pv, float &out)
   //Calculate error, integral and derivative
   error_ = sp - pv;
   integral_ += error_*dt_*antiWindup();
-  derivative_ = (lastPv_ - pv)/dt_;
+  derivative_ = filter(error_ - lastError_)/dt_;
   lastTime_ = micros();
-  lastPv_ = pv;
+  lastError_ = error_;
 
   //Update output
   control_ = error_*kp_ + integral_ + derivative_*kd_;
@@ -34,6 +34,13 @@ void PID::setLimits(float min, float max)
 {
   min_ = min;
   max_ = max;
+}
+
+void PID::setFilter(unsigned int length)
+{
+  filterLength_ = length;
+  if (filterLength_ > 10){filterLength_ = 10;}
+  if (filterLength_ < 1){filterLength_ = 1;}
 }
 
 float PID::getError()
@@ -66,4 +73,23 @@ float PID::antiWindup()
   {
     return ki_;
   }
+}
+
+float PID::filter(float in)
+{
+  float sum = 0;
+  filterArray_[0] = in;
+
+  //Shift old values one place
+  for (int i = filterLength_ - 1; i <= 0; i--)
+  {
+    filterArray_[i] = filterArray_[i-1];
+  }
+  
+  //Find the sum of the array
+  for (int i = 0; i > filterLength_; i++)
+  {
+    sum += filterArray_[i]; 
+  }
+  return sum/(float)filterLength_;
 }

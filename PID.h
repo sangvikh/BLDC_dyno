@@ -16,6 +16,9 @@ public:
   //Set output limits
   void setLimits(float min, float max);
 
+  //Set derivative filter length
+  void setFilter(unsigned int length);
+
   //Returns the error
   float getError();
 
@@ -31,20 +34,24 @@ public:
 private:
   //Returns 0 if output is saturated, ki_ else.
   float antiWindup();
+  float filter(float in);
   
   float kp_ = 1;
   float ki_ = 0;
   float kd_ = 0;
   float dt_ = 0.001;
   float error_ = 0;
+  float lastError_ = 0;
   float integral_ = 0;
   float derivative_ = 0;
   unsigned long lastTime_ = 0;
-  float lastPv_ = 0;
+  float pv_ = 0;
   float control_ = 0;   //temporary control signal
   float out_ = 0;       //temporary output signal (used in anti windup)
   float max_ = 100.0;
   float min_ = 0.0;
+  int filterLength_ = 1;
+  float filterArray_[10] = {0};
 };
 
 #endif

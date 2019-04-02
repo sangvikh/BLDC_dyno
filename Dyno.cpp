@@ -61,7 +61,8 @@ void Dyno::startDynoTest()
   if (testState_ != IDLE && testEverything_ == 0){return;}
   startTime_ = millis();
   testState_ = DYNOTEST;
-  Logger.setFileName("dyno.txt");
+  char text[] = "DYNO.TXT";
+  Logger.setFileName(text);
   Logger.begin();
   rpmSet = 10000.0;
   DUTduty = 0.25;
@@ -78,7 +79,8 @@ void Dyno::startTempTest()
   numberMeasurements_ = 0;
 
   //Start logger
-  Logger.setFileName("temp.txt");
+  char text[] = "TEMP.TXT";
+  Logger.setFileName(text);
   Logger.begin();
 
   //Max current
@@ -202,7 +204,8 @@ void Dyno::everything()
 
 void Dyno::pidRPM()
 {
-  PID.setPID(0.01, 0.01, 0);
+  PID.setPID(0.01, 0.01, 0.001);
+  PID.setFilter(10);
   testState_ = PIDRPM;
 }
 
