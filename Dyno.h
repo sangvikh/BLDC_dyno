@@ -61,7 +61,7 @@ private:
   bool testEverything_ = 0;
   unsigned long startTime_ = 0; //Variable to store time when test was started
   int polePairs_ = 7;   //Number of pole pairs
-  float maxTemp_ = 70.0;       //Maximum temperature for finding nominal current
+  float maxTemp_ = 120.0;       //Maximum temperature for finding nominal current
   float maxCurrent_ = 50.0;       //Maximum motor current (About 2-3x nominal current)
   float DUTnominalCurrent_ = 0;     //Nominal current found in the currentCheck
   float sumMeasurements_ = 0;    //Sum for averaging

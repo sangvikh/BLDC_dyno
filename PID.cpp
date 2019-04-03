@@ -8,14 +8,17 @@ PID::~PID(){}
 void PID::pid(float sp, float pv, float &out)
 {
   //Calculate cycle time
-  dt_ = (float)(micros()-lastTime_)/1000000.0;
+  time_ = micros();
+  dt_ = (float)(time_-prevTime_)/1000000.0;
 
   //Calculate error, integral and derivative
   error_ = sp - pv;
   integral_ += error_*dt_*antiWindup();
-  derivative_ = filter(error_ - lastError_)/dt_;
-  lastTime_ = micros();
-  lastError_ = error_;
+  derivative_ = filter(error_ - prevError_)/dt_;
+
+  //Store previous values
+  prevTime_ = time_;
+  prevError_ = error_;
 
   //Update output
   control_ = error_*kp_ + integral_ + derivative_*kd_;
@@ -36,11 +39,9 @@ void PID::setLimits(float min, float max)
   max_ = max;
 }
 
-void PID::setFilter(unsigned int length)
+void PID::setFilter(unsigned int beta)
 {
-  filterLength_ = length;
-  if (filterLength_ > 10){filterLength_ = 10;}
-  if (filterLength_ < 1){filterLength_ = 1;}
+  filterBeta_ = beta;
 }
 
 float PID::getError()
@@ -61,7 +62,7 @@ float PID::getdt()
 void PID::reset()
 {
   integral_ = 0;
-  lastTime_ = micros();
+  prevTime_ = micros();
 }
 
 float PID::antiWindup()
@@ -78,19 +79,7 @@ float PID::antiWindup()
 
 float PID::filter(float in)
 {
-  float sum = 0;
-  filterArray_[0] = in;
-
-  //Shift old values one place
-  for (int i = filterLength_ - 1; i <= 1; i--)
-  {
-    filterArray_[i] = filterArray_[i-1];
-  }
-  
-  //Find the sum of the array
-  for (int i = 0; i > filterLength_; i++)
-  {
-    sum += filterArray_[i]; 
-  }
-  return sum/(float)filterLength_;
+  // LPF: Y(n) = (1-ß)*Y(n-1) + (ß*X(n))) = Y(n-1) - (ß*(Y(n-1)-X(n)));
+  filteredValue_ = filteredValue_ - (filterBeta_ * (filteredValue_ - in));
+  return filteredValue_;
 }
