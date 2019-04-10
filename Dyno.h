@@ -39,6 +39,12 @@ public:
 
   //Controls RPM using current and PID
   void pidRPM();
+
+  //Sets maximum DUT temp, used for finding nominal current
+  void setMaxTemp(float maxTemp);
+
+  //Set maximum current to use during nominal current test
+  void setMaxCurrent(float maxCurrent);
   
 private:
   void dynoTest();

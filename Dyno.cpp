@@ -85,11 +85,11 @@ void Dyno::startTempTest()
 
   //Max current
   maxCurrent_ = 50.0;
-  currentBrake = 100.0;
+  rpm = 500.0;
 
   //PID settings
   PID.reset();
-  PID.setPID(maxCurrent_/10.0, maxCurrent_/1000.0, 0);
+  PID.setPID(maxCurrent_/10.0, maxCurrent_/1000.0, 0.0);
   PID.setLimits(0.0, maxCurrent_);
 }
 
@@ -128,7 +128,7 @@ void Dyno::tempTest()
   float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual, DUTtemp};
   unsigned int length = sizeof(logData)/sizeof(float);
   Logger.log(logData, length);
-  Brake.setBrakeCurrent(currentBrake);
+  Brake.setRPM(rpm*brakePoles);
 
   //PID control current
   PID.pid(maxTemp_, DUTtemp, DUTcurrent);
@@ -154,12 +154,12 @@ void Dyno::tempTest()
   if (DUTtemp > 1.1*maxTemp_)
   {
     Serial.println("OVERTEMP!!!");
-    stopTest();
+    //stopTest();
   }
   else if (DUTtemp < 0.0)
   {
     Serial.println("Temperature data lost!");
-    stopTest();
+    //stopTest();
   }
 }
 
@@ -167,7 +167,7 @@ void Dyno::poleCheck()
 {
   DUTrpmSet = 10000;
   DUT.setRPM(DUTrpmSet);
-  if (millis() - startTime_ >= 2000)
+  if (millis() - startTime_ >= 3000)
   {
     polePairs_ = (int)round(DUTrpmSet/rpmActual);
     Serial.print("DUT pole pairs: "); Serial.println(polePairs_);
@@ -208,6 +208,16 @@ void Dyno::pidRPM()
   PID.reset();
   PID.setFilter(10);
   testState_ = PIDRPM;
+}
+
+void Dyno::setMaxTemp(float maxTemp)
+{
+  maxTemp_ = maxTemp;
+}
+
+void Dyno::setMaxCurrent(float maxCurrent)
+{
+  maxCurrent_ = maxCurrent;
 }
 
 void Dyno::update()

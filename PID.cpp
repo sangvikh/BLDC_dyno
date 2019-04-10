@@ -79,7 +79,7 @@ float PID::antiWindup()
 
 float PID::filter(float in)
 {
-  // LPF: Y(n) = (1-ß)*Y(n-1) + (ß*X(n))) = Y(n-1) - (ß*(Y(n-1)-X(n)));
-  filteredValue_ = filteredValue_ - (filterBeta_ * (filteredValue_ - in));
+  // y(i)= β∗x(i)+(1-β)∗y(i-1)
+  filteredValue_ = filterBeta_*in + (1-filterBeta_)*filteredValue_;
   return filteredValue_;
 }

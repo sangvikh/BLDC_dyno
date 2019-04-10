@@ -51,7 +51,7 @@ private:
   float out_ = 0;       //temporary output signal (used in anti windup)
   float max_ = 100.0;
   float min_ = 0.0;
-  int filterBeta_ = 3;
+  float filterBeta_ = 0.5;
   float filteredValue_ = 0;
 };
 

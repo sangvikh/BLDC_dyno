@@ -20,7 +20,6 @@ void Logger::begin()
   else
   {
     Serial.println("SD card initialization failed");
-    return;
   }
 
   //Delete old file and open a new one
