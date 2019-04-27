@@ -51,6 +51,7 @@ private:
   void tempTest();
   void poleCheck();
   void everything();
+  void printLog();
 
   enum TESTSTATE
   {

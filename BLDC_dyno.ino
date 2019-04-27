@@ -134,8 +134,8 @@ void loop()
     Can0.write(msg);
 
     //Write debug data to serial
-    Serial.println(rpmActual);
-    Serial.println(DUTrpmActual);
-    Serial.println(cycleTime);
+//    Serial.println(rpmActual);
+//    Serial.println(DUTrpmActual);
+//    Serial.println(cycleTime);
   }
 }

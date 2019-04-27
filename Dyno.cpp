@@ -2,12 +2,12 @@
 #include "config.h"
 #include "variables.h"
 #include "functions.h"
-#include "Logger.h"
+//#include "Logger.h"
 #include "arduino.h"
 #include "VescUart.h"
 #include "PID.h"
 
-Logger Logger;
+//Logger Logger;
 VescUart Brake;   //Brake VESC
 VescUart DUT;     //Device under test VESC
 PID PID;
@@ -41,7 +41,7 @@ void Dyno::stopTest()
     DUTrpm = 0;
     Brake.setDuty(0);
     DUT.setDuty(0);
-    Logger.end();
+//    Logger.end();
 }
 
 void Dyno::emgStop()
@@ -62,8 +62,8 @@ void Dyno::startDynoTest()
   startTime_ = millis();
   testState_ = DYNOTEST;
   char text[] = "DYNO.TXT";
-  Logger.setFileName(text);
-  Logger.begin();
+//  Logger.setFileName(text);
+//  Logger.begin();
   rpmSet = 10000.0;
   DUTduty = 0.25;
 }
@@ -79,9 +79,9 @@ void Dyno::startTempTest()
   numberMeasurements_ = 0;
 
   //Start logger
-  char text[] = "TEMP.TXT";
-  Logger.setFileName(text);
-  Logger.begin();
+//  char text[] = "TEMP.TXT";
+//  Logger.setFileName(text);
+//  Logger.begin();
 
   //Max current
   maxCurrent_ = 50.0;
@@ -108,9 +108,9 @@ int Dyno::getPolePairs()
 void Dyno::dynoTest()
 {
   startTime_ = millis();
-  float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual, DUTtemp};
-  unsigned int length = sizeof(logData)/sizeof(float);
-  Logger.log(logData, length);
+//  float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual, DUTtemp};
+//  unsigned int length = sizeof(logData)/sizeof(float);
+//  Logger.log(logData, length);
   ramp(rpmSet, 1, 100, rpm);
   Brake.setRPM(rpm*brakePoles);
   DUT.setDuty(DUTduty);
@@ -125,9 +125,9 @@ void Dyno::dynoTest()
 void Dyno::tempTest()
 {
   //Start logging
-  float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual, DUTtemp};
-  unsigned int length = sizeof(logData)/sizeof(float);
-  Logger.log(logData, length);
+//  float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual, DUTtemp};
+//  unsigned int length = sizeof(logData)/sizeof(float);
+//  Logger.log(logData, length);
   Brake.setRPM(rpm*brakePoles);
 
   //PID control current
@@ -235,6 +235,9 @@ void Dyno::update()
   DUTinputCurrent = DUT.data.avgInputCurrent;
   inputVoltage = Brake.data.inpVoltage;
   DUTinputVoltage = DUT.data.inpVoltage;
+
+  //Print log data
+  printLog();
     
   //Update the current running program
   switch(testState_)
@@ -265,4 +268,36 @@ void Dyno::update()
   {
     everything();
   }
+}
+
+void Dyno::printLog()
+{
+  Serial.print(cycleTime);
+  Serial.print(',');
+  Serial.print(testState_);
+  Serial.print(',');
+  Serial.print(rpmActual);
+  Serial.print(',');
+  Serial.print(dutyActual);
+  Serial.print(',');
+  Serial.print(brakeTemp);
+  Serial.print(',');
+  Serial.print(motorCurrent);
+  Serial.print(',');
+  Serial.print(inputCurrent);
+  Serial.print(',');
+  Serial.print(inputVoltage);
+  Serial.print(',');
+  Serial.print(DUTrpmActual);
+  Serial.print(',');
+  Serial.print(DUTtemp);
+  Serial.print(',');
+  Serial.print(DUTmotorCurrent);
+  Serial.print(',');
+  Serial.print(DUTinputCurrent);
+  Serial.print(',');
+  Serial.print(DUTinputVoltage);
+  Serial.print(',');
+  Serial.print(polePairs_);
+  Serial.println();
 }
