@@ -17,8 +17,8 @@
 CycleTime Main(10);  //Creates a check for a fixed cycle time
 LoadCell LoadCell;   //Initiate scales
 Dyno Dyno;           //Dyno program sequence
-Adafruit_MAX31865 TS0(17);  //Temperature sensor
-Adafruit_MAX31865 TS1(18);  //Temperature sensor
+Adafruit_MAX31865 TS0(18);  //Temperature sensor
+Adafruit_MAX31865 TS1(19);  //Temperature sensor
 
 //CAN message
 static CAN_message_t msg;
@@ -134,10 +134,8 @@ void loop()
     Can0.write(msg);
 
     //Write debug data to serial
-    //Serial.println(torque,4);
-    //Serial.print(LoadCell.getScaledValue(0),4), Serial.print(", "); Serial.println(LoadCell.getScaledValue(1),4);
-    if (millis() % 100 == 0){
-    Serial.print("Temperature = "); Serial.println(DUTtemp);
-    Serial.print("Current = "); Serial.println(DUTmotorCurrent);}
+    Serial.println(rpmActual);
+    Serial.println(DUTrpmActual);
+    Serial.println(cycleTime);
   }
 }

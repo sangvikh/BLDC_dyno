@@ -226,6 +226,7 @@ void Dyno::update()
   Brake.getVescValues();
   DUT.getVescValues();
   rpmActual = Brake.data.rpm/brakePoles;
+  DUTrpmActual = DUT.data.rpm/polePairs_;
   motorCurrent = Brake.data.avgMotorCurrent;
   DUTmotorCurrent = DUT.data.avgMotorCurrent;
   dutyActual = Brake.data.dutyCycleNow;
