@@ -57,8 +57,8 @@ private:
   {
     IDLE = 0,
     POLECHECK,
-    TEMPTEST,
     DYNOTEST,
+    TEMPTEST,
     PIDRPM,
   };
   

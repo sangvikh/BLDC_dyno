@@ -40,6 +40,7 @@ void setup()
 
   //Start temperature sensors
   TS0.begin(MAX31865_2WIRE);
+  TS1.begin(MAX31865_2WIRE);
 }
 
 
@@ -142,13 +143,16 @@ void loop()
     Dyno.update();
     //Update load cells
     LoadCell.refresh();
-    DUTtemp = TS0.temperature(RNOMINAL, RREF);
+    temp = TS0.temperature(RNOMINAL, RREF);
+    DUTtemp = TS1.temperature(RNOMINAL, RREF);
 
     //Write load cell values
     lc0 = LoadCell.getScaledValue(0);
     lc1 = LoadCell.getScaledValue(1);
     lc2 = LoadCell.getScaledValue(2);
     lc3 = LoadCell.getScaledValue(3);
+    torque = LoadCell.getTorque(0,1);
+    DUTtorque = LoadCell.getTorque(2,3);
 
     //Test CAN, also useful for verifying cycle time in PCAN
     msg.ext = 0;

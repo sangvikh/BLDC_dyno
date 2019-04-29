@@ -272,7 +272,7 @@ void Dyno::update()
 
 void Dyno::printLog()
 {
-  Serial.print(cycleTime);
+  Serial.print(cycleTime,4);
   Serial.print(',');
   Serial.print(testState_);
   Serial.print(',');
@@ -280,7 +280,7 @@ void Dyno::printLog()
   Serial.print(',');
   Serial.print(dutyActual);
   Serial.print(',');
-  Serial.print(brakeTemp);
+  Serial.print(temp);
   Serial.print(',');
   Serial.print(motorCurrent);
   Serial.print(',');
@@ -307,5 +307,9 @@ void Dyno::printLog()
   Serial.print(lc2);
   Serial.print(',');
   Serial.print(lc3);
+  Serial.print(',');
+  Serial.print(torque);
+  Serial.print(',');
+  Serial.print(DUTtorque);
   Serial.print('\n');
 }
