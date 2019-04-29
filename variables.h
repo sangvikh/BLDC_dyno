@@ -24,8 +24,12 @@ extern float DUTinputVoltage;
 extern float DUTduty;
 extern float DUTdutyActual;
 extern float cycleTime;
-extern float torque;
 extern float DUTtemp;
 extern float brakeTemp;
+extern float torque;
+extern float lc0;
+extern float lc1;
+extern float lc2;
+extern float lc3;
 
 #endif

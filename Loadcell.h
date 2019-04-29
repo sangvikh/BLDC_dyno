@@ -56,7 +56,7 @@ private:
   //Scales raw values to calibration values
   void scaleValues();
   //Fixes overflow problem when using the HX711
-  long overflowFix(long in);
+  long signFix(long in);
   //Stores previous values and returns the median of the last ones
   long medianFilter(long in);
 };

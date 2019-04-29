@@ -15,13 +15,13 @@ LoadCell::~LoadCell(){}
 void LoadCell::zero(unsigned char i)
 {
   scales.tare(100,0);
-  zeroValue_[i] = overflowFix(scales.get_offset(i));
+  zeroValue_[i] = signFix(scales.get_offset(i));
 }
 
 void LoadCell::span(unsigned char i)
 {
   scales.tare(100,0);
-  spanValue_[i] = overflowFix(scales.get_offset(i));
+  spanValue_[i] = signFix(scales.get_offset(i));
 }
 
 void LoadCell::tare()
@@ -29,7 +29,7 @@ void LoadCell::tare()
   scales.tare(100,0);
   for (unsigned int i = 0; i < CHANNEL_COUNT; i++)
   {
-    tareValue_[i] = zeroValue_[i] - overflowFix(scales.get_offset(i));
+    tareValue_[i] = zeroValue_[i] - signFix(scales.get_offset(i));
   }
 }
 
@@ -40,7 +40,7 @@ void LoadCell::refresh()
     scales.readRaw(rawValue_);
     for (unsigned int i = 0; i < CHANNEL_COUNT; i++)
     {
-      rawValue_[i] = overflowFix(rawValue_[i]);
+      rawValue_[i] = signFix(rawValue_[i]);
     }
     scaleValues();
   }
@@ -85,7 +85,7 @@ void LoadCell::scaleValues()
   }
 }
 
-long LoadCell::overflowFix(long in)
+long LoadCell::signFix(long in)
 {
   long out = in;
   if (in > 0x400000)

@@ -299,5 +299,13 @@ void Dyno::printLog()
   Serial.print(DUTinputVoltage);
   Serial.print(',');
   Serial.print(polePairs_);
-  Serial.println();
+  Serial.print(',');
+  Serial.print(lc0);
+  Serial.print(',');
+  Serial.print(lc1);
+  Serial.print(',');
+  Serial.print(lc2);
+  Serial.print(',');
+  Serial.print(lc3);
+  Serial.print('\n');
 }

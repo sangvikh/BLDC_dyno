@@ -36,6 +36,7 @@ void setup()
 
   //Load loadcell calibration values
   LoadCell.loadCalibration();
+  LoadCell.tare();
 
   //Start temperature sensors
   TS0.begin(MAX31865_2WIRE);
@@ -48,9 +49,6 @@ void loop()
   {
     //Gets the cycle time, stores it in a global variable
     cycleTime = Main.getCycleTime();
-    
-    //Update load cells
-    LoadCell.refresh();
 
     //Read incoming CAN messages
     while (Can0.available()) 
@@ -103,7 +101,6 @@ void loop()
           msg.id = 0x112;
           msg.len = 1;
           msg.buf[0] = Dyno.getPolePairs();
-          Can0.write(msg);
           break;
           Serial.print(Dyno.getPolePairs());
         case 0x112:
@@ -118,10 +115,40 @@ void loop()
       }
     }
 
+    //Read serial data
+    while (Serial.available())
+    {
+      switch(Serial.read())
+      {
+        default:
+          break;
+        case '0':
+          Dyno.emgStop();
+          break;
+        case 'a':
+          Dyno.startPoleCheck();
+          break;
+        case 'b':
+          LoadCell.tare();
+          Dyno.startDynoTest();
+          break;
+        case 'c':
+          Dyno.startTempTest();
+          break;
+      }
+    }
+
     //Update status of program sequence
     Dyno.update();
-    torque = LoadCell.getTorque(0,1);
+    //Update load cells
+    LoadCell.refresh();
     DUTtemp = TS0.temperature(RNOMINAL, RREF);
+
+    //Write load cell values
+    lc0 = LoadCell.getScaledValue(0);
+    lc1 = LoadCell.getScaledValue(1);
+    lc2 = LoadCell.getScaledValue(2);
+    lc3 = LoadCell.getScaledValue(3);
 
     //Test CAN, also useful for verifying cycle time in PCAN
     msg.ext = 0;
@@ -132,10 +159,5 @@ void loop()
     msg.buf[2] = 3;
     msg.buf[3] = 7;
     Can0.write(msg);
-
-    //Write debug data to serial
-//    Serial.println(rpmActual);
-//    Serial.println(DUTrpmActual);
-//    Serial.println(cycleTime);
   }
 }
