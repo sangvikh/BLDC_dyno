@@ -104,24 +104,30 @@ void Dyno::tempTest()
   //Spin up brake motor
   Brake.setRPM(rpm*brakePoles);
 
+  //PID control current on DUT
+  PID.pid(maxTemp_, DUTtemp, DUTcurrent);
+  DUT.setCurrent(DUTcurrent);
+
+  //Timed sequences, falling order:
+  //Run test for 10 minutes, then stop
+  if (millis() - startTime_ >= 600000)
+  {
+    stopTest();
+  }
+  //Average current the last minute is nominal current
+  else if (millis() - startTime_ >= 600000-60000)
+  {
+    sumMeasurements_ += DUTmotorCurrent;
+    numberMeasurements_++;
+    DUTnominalCurrent_ = sumMeasurements_/numberMeasurements_;
+  }
   //Find maximum current the DUT vesc is set to
-  while (millis() - startTime_ < 1000)
+  else if (millis() - startTime_ < 1000)
   {
     DUT.setCurrent(100.0);
     numberMeasurements_++;
     sumMeasurements_ += DUTmotorCurrent;
     maxCurrent_ = sumMeasurements_/numberMeasurements_;
-  }
-
-  //PID control current on DUT
-  PID.pid(maxTemp_, DUTtemp, DUTcurrent);
-  DUT.setCurrent(DUTcurrent);
-
-  //Average current the last minute is nominal current
-  if (millis() - startTime_ >= 600000-60000)
-  {
-    sumMeasurements_ += DUTmotorCurrent;
-    numberMeasurements_++;
   }
   else
   {
@@ -131,15 +137,9 @@ void Dyno::tempTest()
     PID.setLimits(0.0, maxCurrent_);
   }
 
-  //Run test for 10 minutes
-  if (millis() - startTime_ >= 600000)
-  {
-    DUTnominalCurrent_ = sumMeasurements_/numberMeasurements_;
-    stopTest();
-  }
-
-  int counter = 0;
   //Stop if overtemp or reading lost
+  //Counter to account for bad readings
+  int counter = 0;
   while (DUTtemp > 1.1*maxTemp_ || DUTtemp < 0.0)
   {
     counter++;

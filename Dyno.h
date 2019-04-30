@@ -54,7 +54,7 @@ private:
   //Class variables
   TESTSTATE testState_ = IDLE;
   unsigned long startTime_ = 0; //Variable to store time when test was started
-  int polePairs_ = 7;   //Number of pole pairs
+  int polePairs_ = 0;   //Number of pole pairs
   float maxTemp_ = 100.0;       //Maximum temperature for finding nominal current
   float maxCurrent_ = 100.0;       //Maximum motor current (About 2-3x nominal current)
   float DUTnominalCurrent_ = 0;     //Nominal current found in the currentCheck
