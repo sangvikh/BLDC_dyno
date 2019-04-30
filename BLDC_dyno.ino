@@ -110,12 +110,6 @@ void loop()
         case 0x112:
           Dyno.startTempTest();
           break;
-        case 0x113:
-          Dyno.pidRPM();
-          break;
-        case 0x114:
-          Dyno.testEverything();
-          break;
       }
     }
 

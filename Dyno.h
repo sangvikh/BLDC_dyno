@@ -18,9 +18,6 @@ public:
 
   //Stops everything
   void emgStop();
-
-  //Tests everything
-  void testEverything();
   
   //Starts a dyno run
   void startDynoTest();
@@ -37,20 +34,13 @@ public:
   //This function runs every loop and keeps track of the output/states
   void update();
 
-  //Controls RPM using current and PID
-  void pidRPM();
-
   //Sets maximum DUT temp, used for finding nominal current
   void setMaxTemp(float maxTemp);
-
-  //Set maximum current to use during nominal current test
-  void setMaxCurrent(float maxCurrent);
   
 private:
   void dynoTest();
   void tempTest();
   void poleCheck();
-  void everything();
   void printLog();
 
   enum TESTSTATE
@@ -59,17 +49,14 @@ private:
     POLECHECK,
     DYNOTEST,
     TEMPTEST,
-    PIDRPM,
   };
   
   //Class variables
   TESTSTATE testState_ = IDLE;
-  int state_ = 0;  //State for sequential stuff
-  bool testEverything_ = 0;
   unsigned long startTime_ = 0; //Variable to store time when test was started
   int polePairs_ = 7;   //Number of pole pairs
-  float maxTemp_ = 120.0;       //Maximum temperature for finding nominal current
-  float maxCurrent_ = 50.0;       //Maximum motor current (About 2-3x nominal current)
+  float maxTemp_ = 100.0;       //Maximum temperature for finding nominal current
+  float maxCurrent_ = 100.0;       //Maximum motor current (About 2-3x nominal current)
   float DUTnominalCurrent_ = 0;     //Nominal current found in the currentCheck
   float sumMeasurements_ = 0;    //Sum for averaging
   unsigned int numberMeasurements_ = 0;   //Number of measurements for averaging

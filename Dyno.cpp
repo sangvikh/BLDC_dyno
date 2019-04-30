@@ -2,7 +2,6 @@
 #include "config.h"
 #include "variables.h"
 #include "functions.h"
-//#include "Logger.h"
 #include "arduino.h"
 #include "VescUart.h"
 #include "PID.h"
@@ -30,7 +29,6 @@ void Dyno::stopTest()
 {
     //Ends the dyno test, sets all values to 0
     testState_ = IDLE;
-    state_++;       //For testEverytning();
     rpmSet = 0;
     rpm = 0;
     current = 0;
@@ -41,36 +39,25 @@ void Dyno::stopTest()
     DUTrpm = 0;
     Brake.setDuty(0);
     DUT.setDuty(0);
-//    Logger.end();
 }
 
 void Dyno::emgStop()
 {
   stopTest();
-  testEverything_ = 0;
-}
-
-void Dyno::testEverything()
-{
-  testEverything_ = 1;
-  state_ = 0;
 }
 
 void Dyno::startDynoTest()
 {
-  if (testState_ != IDLE && testEverything_ == 0){return;}
+  if (testState_ != IDLE){return;}
   startTime_ = millis();
   testState_ = DYNOTEST;
-  char text[] = "DYNO.TXT";
-//  Logger.setFileName(text);
-//  Logger.begin();
   rpmSet = 10000.0;
   DUTduty = 0.25;
 }
 
 void Dyno::startTempTest()
 {
-  if (testState_ != IDLE && testEverything_ == 0){return;}
+  if (testState_ != IDLE){return;}
   startTime_ = millis();
   testState_ = TEMPTEST;
 
@@ -78,24 +65,18 @@ void Dyno::startTempTest()
   sumMeasurements_ = 0;
   numberMeasurements_ = 0;
 
-  //Start logger
-//  char text[] = "TEMP.TXT";
-//  Logger.setFileName(text);
-//  Logger.begin();
-
-  //Max current
-  maxCurrent_ = 50.0;
+  //500 rpm ensures that sensorless control will work
   rpm = 500.0;
 
   //PID settings
   PID.reset();
   PID.setPID(maxCurrent_/10.0, maxCurrent_/1000.0, 0.0);
-  PID.setLimits(0.0, maxCurrent_);
+  PID.setLimits(0.0, 100.0);
 }
 
 void Dyno::startPoleCheck()
 {
-  if (testState_ != IDLE && testEverything_ == 0){return;}
+  if (testState_ != IDLE){return;}
   startTime_ = millis();
   testState_ = POLECHECK;
 }
@@ -107,10 +88,6 @@ int Dyno::getPolePairs()
 
 void Dyno::dynoTest()
 {
-  startTime_ = millis();
-//  float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual, DUTtemp};
-//  unsigned int length = sizeof(logData)/sizeof(float);
-//  Logger.log(logData, length);
   ramp(rpmSet, 1, 100, rpm);
   Brake.setRPM(rpm*brakePoles);
   DUT.setDuty(DUTduty);
@@ -124,13 +101,19 @@ void Dyno::dynoTest()
 
 void Dyno::tempTest()
 {
-  //Start logging
-//  float logData[] = {rpmActual, torque, cycleTime, inputVoltage, inputCurrent, motorCurrent, dutyActual, DUTinputCurrent, DUTmotorCurrent, DUTdutyActual, DUTtemp};
-//  unsigned int length = sizeof(logData)/sizeof(float);
-//  Logger.log(logData, length);
+  //Spin up brake motor
   Brake.setRPM(rpm*brakePoles);
 
-  //PID control current
+  //Find maximum current the DUT vesc is set to
+  while (millis() - startTime_ < 1000)
+  {
+    DUT.setCurrent(100.0);
+    numberMeasurements_++;
+    sumMeasurements_ += DUTmotorCurrent;
+    maxCurrent_ = sumMeasurements_/numberMeasurements_;
+  }
+
+  //PID control current on DUT
   PID.pid(maxTemp_, DUTtemp, DUTcurrent);
   DUT.setCurrent(DUTcurrent);
 
@@ -139,6 +122,13 @@ void Dyno::tempTest()
   {
     sumMeasurements_ += DUTmotorCurrent;
     numberMeasurements_++;
+  }
+  else
+  {
+    //Zero average
+    sumMeasurements_ = 0;
+    numberMeasurements_ = 0;
+    PID.setLimits(0.0, maxCurrent_);
   }
 
   //Run test for 10 minutes
@@ -172,49 +162,9 @@ void Dyno::poleCheck()
   }
 }
 
-void Dyno::everything()
-{
-  switch(state_)
-  {
-    default:
-      break;
-    case 0:
-      startPoleCheck();
-      state_++;
-      break;
-    case 2:
-      delay(500);
-      startDynoTest();
-      state_++;
-      break;
-    case 4:
-      delay(500);
-      startTempTest();
-      state_++;
-      break;
-    case 6:
-      testEverything_ = 0;
-      stopTest();
-      break;
-  }
-}
-
-void Dyno::pidRPM()
-{
-  PID.setPID(0.03, 0.12, 0.001875);
-  PID.reset();
-  PID.setFilter(10);
-  testState_ = PIDRPM;
-}
-
 void Dyno::setMaxTemp(float maxTemp)
 {
   maxTemp_ = maxTemp;
-}
-
-void Dyno::setMaxCurrent(float maxCurrent)
-{
-  maxCurrent_ = maxCurrent;
 }
 
 void Dyno::update()
@@ -251,19 +201,6 @@ void Dyno::update()
     case POLECHECK:
       poleCheck();
       break;
-    case PIDRPM:
-      PID.pid(1000.0, rpmActual, DUTcurrent);
-      DUT.setCurrent(DUTcurrent);
-      Serial.println(rpmActual);
-      Serial.println(PID.getIntegral());
-      Serial.println(PID.getdt(),4);
-      Serial.println("--------------------");
-  }
-
-  //Running if checkEverything();
-  if (testEverything_ == 1)
-  {
-    everything();
   }
 }
 
@@ -286,6 +223,8 @@ void Dyno::printLog()
   Serial.print(inputVoltage);
   Serial.print(',');
   Serial.print(abs(DUTrpmActual),0);
+  Serial.print(',');
+  Serial.print(DUTdutyActual);
   Serial.print(',');
   Serial.print(DUTtemp,1);
   Serial.print(',');
