@@ -144,22 +144,20 @@ void Dyno::tempTest()
   //Run test for 10 minutes
   if (millis() - startTime_ >= 600000)
   {
-    Serial.println("Temp check complete");
     DUTnominalCurrent_ = sumMeasurements_/numberMeasurements_;
-    Serial.print("Nominal current: "); Serial.println(DUTnominalCurrent_);
     stopTest();
   }
 
+  int counter = 0;
   //Stop if overtemp or reading lost
-  if (DUTtemp > 1.1*maxTemp_)
+  while (DUTtemp > 1.1*maxTemp_ || DUTtemp < 0.0)
   {
-    Serial.println("OVERTEMP!!!");
-    //stopTest();
-  }
-  else if (DUTtemp < 0.0)
-  {
-    Serial.println("Temperature data lost!");
-    //stopTest();
+    counter++;
+    if (counter > 10)
+    {
+      stopTest();
+      break;
+    }
   }
 }
 
@@ -170,7 +168,6 @@ void Dyno::poleCheck()
   if (millis() - startTime_ >= 3000)
   {
     polePairs_ = (int)round(DUTrpmSet/rpmActual);
-    Serial.print("DUT pole pairs: "); Serial.println(polePairs_);
     stopTest();
   }
 }
@@ -272,15 +269,15 @@ void Dyno::update()
 
 void Dyno::printLog()
 {
-  Serial.print(cycleTime,4);
+  Serial.print(millis()-startTime_);
   Serial.print(',');
   Serial.print(testState_);
   Serial.print(',');
-  Serial.print(rpmActual);
+  Serial.print(abs(rpmActual),0);
   Serial.print(',');
   Serial.print(dutyActual);
   Serial.print(',');
-  Serial.print(temp);
+  Serial.print(temp,1);
   Serial.print(',');
   Serial.print(motorCurrent);
   Serial.print(',');
@@ -288,9 +285,9 @@ void Dyno::printLog()
   Serial.print(',');
   Serial.print(inputVoltage);
   Serial.print(',');
-  Serial.print(DUTrpmActual);
+  Serial.print(abs(DUTrpmActual),0);
   Serial.print(',');
-  Serial.print(DUTtemp);
+  Serial.print(DUTtemp,1);
   Serial.print(',');
   Serial.print(DUTmotorCurrent);
   Serial.print(',');
@@ -300,6 +297,8 @@ void Dyno::printLog()
   Serial.print(',');
   Serial.print(polePairs_);
   Serial.print(',');
+  Serial.print(DUTnominalCurrent_);
+  Serial.print(',');
   Serial.print(lc0);
   Serial.print(',');
   Serial.print(lc1);
@@ -308,8 +307,8 @@ void Dyno::printLog()
   Serial.print(',');
   Serial.print(lc3);
   Serial.print(',');
-  Serial.print(torque);
+  Serial.print(abs(torque));
   Serial.print(',');
-  Serial.print(DUTtorque);
+  Serial.print(abs(DUTtorque));
   Serial.print('\n');
 }

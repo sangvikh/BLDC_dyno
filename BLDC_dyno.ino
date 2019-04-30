@@ -41,6 +41,9 @@ void setup()
   //Start temperature sensors
   TS0.begin(MAX31865_2WIRE);
   TS1.begin(MAX31865_2WIRE);
+
+  //Door switch
+  pinMode(doorPin, INPUT_PULLUP);
 }
 
 
@@ -137,6 +140,12 @@ void loop()
           Dyno.startTempTest();
           break;
       }
+    }
+
+    //Emergency stop if door is open
+    if (digitalRead(doorPin))
+    {
+      Dyno.emgStop();
     }
 
     //Update status of program sequence
