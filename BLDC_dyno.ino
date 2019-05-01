@@ -104,9 +104,7 @@ void loop()
           Dyno.startPoleCheck();
           msg.id = 0x112;
           msg.len = 1;
-          msg.buf[0] = Dyno.getPolePairs();
           break;
-          Serial.print(Dyno.getPolePairs());
         case 0x112:
           Dyno.startTempTest();
           break;
@@ -114,11 +112,16 @@ void loop()
     }
 
     //Read serial data
-    while (Serial.available())
+    while (Serial.available() > 0)
     {
-      switch(Serial.read())
+      char func = Serial.read();
+      int value = Serial.parseInt();
+      
+      //Run functions
+      switch(func)
       {
         default:
+          //Do nothing
           break;
         case '0':
           Dyno.emgStop();
@@ -132,6 +135,18 @@ void loop()
           break;
         case 'c':
           Dyno.startTempTest();
+          break;
+        case 'd':
+          LoadCell.zero(value);
+          break;
+        case 'e':
+          LoadCell.span(value);
+          break;
+        case 'f':
+          Dyno.startTempTest();
+          break;
+        case 'h':
+          LoadCell.saveCalibration();
           break;
       }
     }

@@ -28,9 +28,6 @@ public:
   //Finds the number of pole pairs on the DUT
   void startPoleCheck();
 
-  //Returns the pole pairs found from the poleCheck
-  int getPolePairs();
-
   //This function runs every loop and keeps track of the output/states
   void update();
 

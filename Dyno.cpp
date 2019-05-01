@@ -81,11 +81,6 @@ void Dyno::startPoleCheck()
   testState_ = POLECHECK;
 }
 
-int Dyno::getPolePairs()
-{
-  return polePairs_;
-}
-
 void Dyno::dynoTest()
 {
   ramp(rpmSet, 1, 100, rpm);
