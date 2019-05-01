@@ -137,13 +137,16 @@ void loop()
           Dyno.startTempTest();
           break;
         case 'd':
-          LoadCell.zero(value);
+          LoadCell.tare();
           break;
         case 'e':
-          LoadCell.span(value);
+          LoadCell.zero(value);
           break;
         case 'f':
-          Dyno.startTempTest();
+          LoadCell.span(value);
+          break;
+        case 'g':
+          LoadCell.setCalibrationMass(value/1000.0);
           break;
         case 'h':
           LoadCell.saveCalibration();

@@ -14,12 +14,14 @@ LoadCell::~LoadCell(){}
 
 void LoadCell::zero(unsigned char i)
 {
+  i = constrain(i,0,CHANNEL_COUNT);
   scales.tare(100,0);
   zeroValue_[i] = signFix(scales.get_offset(i));
 }
 
 void LoadCell::span(unsigned char i)
 {
+  i = constrain(i,0,CHANNEL_COUNT);
   scales.tare(100,0);
   spanValue_[i] = signFix(scales.get_offset(i));
 }
