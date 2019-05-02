@@ -54,63 +54,6 @@ void loop()
     //Gets the cycle time, stores it in a global variable
     cycleTime = Main.getCycleTime();
 
-    //Read incoming CAN messages
-    while (Can0.available()) 
-    {
-      Can0.read(msg); 
-      switch(msg.id)
-      {
-        case 0x01:
-          DUTrpm = (float)(msg.buf[0]*100);
-          break;
-        case 0x02:
-          rpm = 0.0;
-          DUTrpm = 0.0;
-          current = 0.0;
-          DUTcurrent = 0.0;
-          break;
-        case 0x99:
-          LoadCell.tare();
-          Dyno.startDynoTest();
-          break;
-        case 0x100:
-          Dyno.stopTest();
-        case 0x10:
-          LoadCell.zero(msg.buf[0]);
-          break;
-        case 0x11:
-          LoadCell.span(msg.buf[0]);
-          break;
-        case 0x12:
-          LoadCell.tare();
-          break;
-        case 0x05:
-          LoadCell.saveCalibration();
-          break;
-        case 0x06:
-        {
-          unsigned int mass = (msg.buf[0]<<8)+msg.buf[1];
-          LoadCell.setCalibrationMass((float)mass/1000.0);
-          Serial.println(mass/1000, 3);
-          break;
-        }
-        case 0x101:
-          DUTrpm = (float)(msg.buf[0]*100);
-          break;
-        case 0x102:
-          DUTrpm = 0.0;
-          break;
-        case 0x111:
-          Dyno.startPoleCheck();
-          msg.id = 0x112;
-          msg.len = 1;
-          break;
-        case 0x112:
-          Dyno.startTempTest();
-          break;
-      }
-    }
-
     //Read serial data
     while (Serial.available() > 0)
     {
@@ -160,8 +103,6 @@ void loop()
       Dyno.stopTest();
     }
 
-    //Update status of program sequence
-    Dyno.update();
     //Update load cells
     LoadCell.refresh();
     temp = TS0.temperature(RNOMINAL, RREF);
@@ -175,14 +116,12 @@ void loop()
     torque = LoadCell.getTorque(0,1);
     DUTtorque = LoadCell.getTorque(2,3);
 
-    //Test CAN, also useful for verifying cycle time in PCAN
-    msg.ext = 0;
-    msg.id = 0x100;
-    msg.len = 4;
-    msg.buf[0] = 1;
-    msg.buf[1] = 3;
-    msg.buf[2] = 3;
-    msg.buf[3] = 7;
+    //Update status of program sequence
+    Dyno.update();
+
+    //Write status to CAN
+    msg.id = 0x123;
+    msg.buf[0] = Dyno.getTestState();
     Can0.write(msg);
   }
 }

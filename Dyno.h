@@ -28,8 +28,8 @@ public:
   //This function runs every loop and keeps track of the output/states
   void update();
 
-  //Sets maximum DUT temp, used for finding nominal current
-  void setMaxTemp(float maxTemp);
+  //Returns which test is running
+  int getTestState();
   
 private:
   void dynoTest();

@@ -6,7 +6,6 @@
 #include "VescUart.h"
 #include "PID.h"
 
-//Logger Logger;
 VescUart Brake;   //Brake VESC
 VescUart DUT;     //Device under test VESC
 PID PID;
@@ -152,11 +151,6 @@ void Dyno::poleCheck()
   }
 }
 
-void Dyno::setMaxTemp(float maxTemp)
-{
-  maxTemp_ = maxTemp;
-}
-
 void Dyno::update()
 {
   //Get data from VESC's
@@ -192,6 +186,11 @@ void Dyno::update()
       poleCheck();
       break;
   }
+}
+
+int Dyno::getTestState()
+{
+  return testState_;
 }
 
 void Dyno::printLog()
