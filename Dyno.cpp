@@ -41,11 +41,6 @@ void Dyno::stopTest()
     DUT.setDuty(0);
 }
 
-void Dyno::emgStop()
-{
-  stopTest();
-}
-
 void Dyno::startDynoTest()
 {
   if (testState_ != IDLE){return;}

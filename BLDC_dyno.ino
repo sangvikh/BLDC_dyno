@@ -74,7 +74,7 @@ void loop()
           Dyno.startDynoTest();
           break;
         case 0x100:
-          Dyno.emgStop();
+          Dyno.stopTest();
         case 0x10:
           LoadCell.zero(msg.buf[0]);
           break;
@@ -124,7 +124,7 @@ void loop()
           //Do nothing
           break;
         case '0':
-          Dyno.emgStop();
+          Dyno.stopTest();
           break;
         case 'a':
           Dyno.startPoleCheck();
@@ -146,7 +146,7 @@ void loop()
           LoadCell.span(value);
           break;
         case 'g':
-          LoadCell.setCalibrationMass(value/1000.0);
+          LoadCell.setCalibrationMass((float)value/1000.0);
           break;
         case 'h':
           LoadCell.saveCalibration();
@@ -157,7 +157,7 @@ void loop()
     //Emergency stop if door is open
     if (digitalRead(doorPin))
     {
-      Dyno.emgStop();
+      Dyno.stopTest();
     }
 
     //Update status of program sequence

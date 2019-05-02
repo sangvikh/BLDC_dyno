@@ -13,11 +13,8 @@ public:
   //Ends the supporting functions
   void end();
 
-  //Stops the current test
+  //Stops the current test, motors to 0
   void stopTest();
-
-  //Stops everything
-  void emgStop();
   
   //Starts a dyno run
   void startDynoTest();
