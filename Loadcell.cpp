@@ -2,12 +2,16 @@
 #include "HX711-multi.h"
 #include "functions.h"
 #include "EEPROMAnything.h"
+#include "Filter.h"
 
 //HX711 scale setup
 #define CLK 5      // clock pin to the load cell amp
 byte DOUTS[] = {6, 15, 16, 17};    //data pins
-#define CHANNEL_COUNT sizeof(DOUTS)/sizeof(byte)
+#define CHANNEL_COUNT sizeof(DOUTS)/sizeof(DOUTS[0])
 HX711MULTI scales(CHANNEL_COUNT, DOUTS, CLK);
+
+//Median filters
+Filter Filter[4];
 
 LoadCell::LoadCell(){}
 LoadCell::~LoadCell(){}
@@ -43,6 +47,7 @@ void LoadCell::refresh()
     for (unsigned int i = 0; i < CHANNEL_COUNT; i++)
     {
       rawValue_[i] = signFix(rawValue_[i]);
+      rawValue_[i] = Filter[i].medianFilter(rawValue_[i]);
     }
     scaleValues();
   }
@@ -95,12 +100,4 @@ long LoadCell::signFix(long in)
     out = in - 0x800000;
   }
   return out;
-}
-
-long LoadCell::medianFilter(long in)
-{
-  filterBuffer_[2] = filterBuffer_[1];
-  filterBuffer_[1] = filterBuffer_[0];
-  filterBuffer_[0] = in;
-  return 0;
 }
