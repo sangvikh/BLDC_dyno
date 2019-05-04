@@ -46,7 +46,7 @@ void Dyno::startDynoTest()
   startTime_ = millis();
   testState_ = DYNOTEST;
   rpmSet = 10000.0;
-  DUTduty = 0.25;
+  DUTduty = 0.95;
 }
 
 void Dyno::startTempTest()
@@ -128,16 +128,16 @@ void Dyno::tempTest()
 
   //Stop if overtemp or reading lost
   //Counter to account for bad readings
-  int counter = 0;
-  while (DUTtemp > 1.1*maxTemp_ || DUTtemp < 0.0)
+  if (DUTtemp > 1.1*maxTemp_ || DUTtemp < 0.0)
   {
     counter++;
-    if (counter > 10)
+    if (counter >= 10)
     {
+      counter = 10;
       stopTest();
-      break;
     }
   }
+  else counter = 0;
 }
 
 void Dyno::poleCheck()

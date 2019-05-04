@@ -54,6 +54,7 @@ private:
   float DUTnominalCurrent_ = 0;     //Nominal current found in the currentCheck
   float sumMeasurements_ = 0;    //Sum for averaging
   unsigned int numberMeasurements_ = 0;   //Number of measurements for averaging
+  int counter = 0;
 };
 
 #endif

@@ -23,6 +23,9 @@ Adafruit_MAX31865 TS1(19);  //Temperature sensor
 //CAN message
 static CAN_message_t msg;
 
+//Counter to filter readings
+int counter = 0;
+
 void setup()
 {
   //Setup debug serial
@@ -100,9 +103,15 @@ void loop()
     //Emergency stop if door is open
     if (digitalRead(doorPin))
     {
-      Dyno.stopTest();
+      counter++;
+      if (counter >= 10)
+      {
+        counter = 10;
+        Dyno.stopTest();
+      }
     }
-
+    else counter = 0;
+    
     //Update load cells
     LoadCell.refresh();
     temp = TS0.temperature(RNOMINAL, RREF);
