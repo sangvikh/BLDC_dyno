@@ -45,7 +45,7 @@ void Dyno::startDynoTest()
   if (testState_ != IDLE){return;}
   startTime_ = millis();
   testState_ = DYNOTEST;
-  rpmSet = 10000.0;
+  rpmSet = 100000.0;
   DUTduty = 0.95;
 }
 

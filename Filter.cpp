@@ -20,6 +20,7 @@ long Filter::medianFilter(long in)
   isort(sortedArray_, bufferLength_);
 
   //Return middle value(Median)
+  // EVEN LENGTH NOT IMPLEMENTED
   return sortedArray_[(bufferLength_ - 1) / 2];
 }
 

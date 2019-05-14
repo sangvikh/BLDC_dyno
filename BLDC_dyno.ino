@@ -129,7 +129,8 @@ void loop()
     Dyno.update();
 
     //Write status to CAN
-    msg.id = 0x123;
+    msg.id = 0x007;
+    msg.len = 1;
     msg.buf[0] = Dyno.getTestState();
     Can0.write(msg);
   }
